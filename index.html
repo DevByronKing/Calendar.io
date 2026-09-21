@@ -143,6 +143,10 @@
             <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30">
               IT Enterprise + AI
             </span>
+            <span id="persistenceBadge" class="hidden 2xl:inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20" title="Suas atividades são salvas automaticamente no armazenamento local do seu navegador">
+              <i data-lucide="shield-check" class="w-3 h-3 text-emerald-500"></i>
+              <span>Autosalvamento Ativo</span>
+            </span>
           </div>
           <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Planejamento Estratégico & Gestão de TI</p>
         </div>
@@ -205,15 +209,14 @@
           </button>
         </div>
 
-        <!-- Corporate Sample Preset Button -->
+        <!-- Export / Backup Download Button -->
         <button 
-          id="loadSampleBtn"
-          onclick="loadCorporateSample()" 
-          title="Pré-carregar modelo anual completo com dados corporativos de TI"
+          onclick="exportDataJSON()" 
+          title="Baixar cópia de segurança com todas as suas tarefas (JSON)"
           class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition shrink-0"
         >
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-500"></i>
-          <span class="hidden 2xl:inline">Modelo</span>
+          <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-500"></i>
+          <span class="hidden 2xl:inline">Salvar Backup</span>
         </button>
 
         <!-- New Task Button -->
@@ -465,38 +468,36 @@
       <!-- GLOBAL EMPTY STATE BANNER (Shown when STATE.tasks.length === 0) -->
       <div id="globalEmptyState" class="hidden mb-5 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border-2 border-dashed border-indigo-300 dark:border-indigo-500/30 text-center shadow-lg dark:shadow-indigo-950/30">
         <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-xl shadow-indigo-500/30 text-white">
-          <i data-lucide="calendar-plus" class="w-8 h-8"></i>
+          <i data-lucide="calendar-check" class="w-8 h-8"></i>
         </div>
         <h3 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white mb-2">
-          Seu Calendário Estratégico de TI está Pronto para Operar!
+          Seu Calendário está Limpo e Pronto para Suas Atividades
         </h3>
         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-xl mx-auto mb-6 leading-relaxed">
-          Nenhuma atividade cadastrada no momento. Escolha abaixo para preencher seu planejamento com dados reais de TI ou automatizar rotinas com Inteligência Artificial:
+          Nenhuma tarefa cadastrada. Suas atividades são salvas automaticamente no armazenamento local do navegador em tempo real. Crie novas tarefas manualmente ou use a IA para agendar suas rotinas:
         </p>
         <div class="flex flex-wrap items-center justify-center gap-3">
           <button 
-            onclick="restoreCorporateModelDirectly()" 
-            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition"
-          >
-            <i data-lucide="layers" class="w-4 h-4"></i>
-            <span>Carregar Modelo Corporativo Completo</span>
-          </button>
-          
-          <button 
             onclick="openAICopilotModal()" 
-            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 active:scale-95 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-500 hover:to-pink-400 active:scale-95 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition"
           >
-            <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
-            <span>Agendar com Copiloto IA (Visitas & Testes)</span>
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-300 animate-pulse"></i>
+            <span>Agendar com IA (Visitas Barros Barreto, Betina, Testes & Preventivas)</span>
           </button>
           
           <button 
             onclick="openTaskModal()" 
-            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 font-semibold text-xs transition shadow-sm"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold text-xs shadow-md shadow-indigo-600/20 transition"
           >
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>Criar Atividade Manual</span>
           </button>
+
+          <label class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 font-semibold text-xs transition shadow-sm cursor-pointer">
+            <i data-lucide="upload" class="w-4 h-4 text-cyan-500"></i>
+            <span>Importar Backup JSON</span>
+            <input type="file" accept=".json" class="hidden" onchange="importDataJSON(event)">
+          </label>
         </div>
       </div>
 
@@ -997,7 +998,7 @@
             type="text" 
             id="taskTitleInput" 
             required 
-            placeholder="Ex: Auditoria de Segurança SOC2 / ISO 27001" 
+            placeholder="Ex: Visita Técnica Barros Barreto / Checklist Matinal / Manutenção" 
             class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
           >
         </div>
@@ -1281,246 +1282,8 @@
       critical: { id: 'critical', name: 'Crítica', dot: 'bg-rose-500' }
     };
 
-    // Base Corporate IT Dataset with Realistic Activities
-    const CORPORATE_IT_PRESET = [
-      {
-        id: 'task-1',
-        title: 'Auditoria de Segurança SOC2 & ISO 27001',
-        description: 'Revisão das evidências de controle de acesso, criptografia e políticas de retenção de logs com os auditores.',
-        cadence: 'quarterly',
-        category: 'indicators',
-        status: 'done',
-        priority: 'critical',
-        date: '2026-02-18',
-        quarter: 'Q1',
-        squad: 'SecOps & Governança',
-        tags: ['#Compliance', '#SOC2', '#Auditoria'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-1', text: 'Coleta de evidências de controle de acesso', done: true },
-          { id: 'st-2', text: 'Auditoria dos logs do CloudTrail e SIEM', done: true },
-          { id: 'st-3', text: 'Entrevista de conformidade com equipe de RH', done: true },
-          { id: 'st-4', text: 'Emissão do relatório prévio com os auditores', done: true }
-        ]
-      },
-      {
-        id: 'task-2',
-        title: 'Migração do Cluster Kubernetes para EKS v1.30',
-        description: 'Upgrade dos nós operacionais de produção, validação de compatibilidade com Helm charts e teste de autoscaling.',
-        cadence: 'quarterly',
-        category: 'projects',
-        status: 'done',
-        priority: 'high',
-        date: '2026-03-12',
-        quarter: 'Q1',
-        squad: 'DevOps',
-        tags: ['#Kubernetes', '#AWS', '#Cloud'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-5', text: 'Homologação dos manifestos em staging', done: true },
-          { id: 'st-6', text: 'Atualização do Ingress Controller Traefik', done: true },
-          { id: 'st-7', text: 'Drain e substituição gradual dos nós em produção', done: true }
-        ]
-      },
-      {
-        id: 'task-3',
-        title: 'Visita Técnica Presencial: Cliente Barros Barreto',
-        description: 'Alinhamento com a diretoria do cliente Barros Barreto, inspeção de cabeamento e checklist de estabilidade.',
-        cadence: 'monthly',
-        category: 'clients',
-        status: 'done',
-        priority: 'high',
-        date: '2026-09-08',
-        quarter: 'Q3',
-        squad: 'Atendimento Externo',
-        tags: ['#Visita', '#BarrosBarreto', '#Infra'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-bb1', text: 'Reunião de alinhamento com a TI do cliente', done: true },
-          { id: 'st-bb2', text: 'Inspeção do no-break e rack principal', done: true },
-          { id: 'st-bb3', text: 'Coleta de assinatura da ordem de serviço', done: true }
-        ]
-      },
-      {
-        id: 'task-4',
-        title: 'Visita Técnica e Suporte Local: Cliente Betina',
-        description: 'Manutenção preventiva dos pontos de rede e conferência dos backups locais no cliente Betina.',
-        cadence: 'monthly',
-        category: 'clients',
-        status: 'in_progress',
-        priority: 'medium',
-        date: '2026-09-24',
-        quarter: 'Q3',
-        squad: 'Atendimento Externo',
-        tags: ['#Visita', '#Betina', '#Suporte'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-bt1', text: 'Validação dos links redundantes de internet', done: true },
-          { id: 'st-bt2', text: 'Teste dos switches de borda', done: false }
-        ]
-      },
-      {
-        id: 'task-5',
-        title: 'Simulado Anual de Disaster Recovery (DRP)',
-        description: 'Failover controlado do Datacenter Primário para a região secundária da nuvem em ambiente isolado.',
-        cadence: 'quarterly',
-        category: 'routines',
-        status: 'in_progress',
-        priority: 'critical',
-        date: '2026-05-15',
-        quarter: 'Q2',
-        squad: 'Infraestrutura',
-        tags: ['#DRP', '#Seguranca', '#Bancos'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-12', text: 'Validação dos snapshots imutáveis em outra região', done: true },
-          { id: 'st-13', text: 'Comunicação e alinhamento de janela com o negócio', done: true },
-          { id: 'st-14', text: 'Execução do teste de failover dos bancos PostgreSQL', done: false },
-          { id: 'st-15', text: 'Relatório pós-incidente e cálculo de RPO/RTO', done: false }
-        ]
-      },
-      {
-        id: 'task-6',
-        title: 'Implantação de MFA / SSO com Okta',
-        description: 'Rollout obrigatório de autenticação FIDO2 e push mobile para todos os 1.200 colaboradores da empresa.',
-        cadence: 'quarterly',
-        category: 'security',
-        status: 'in_progress',
-        priority: 'high',
-        date: '2026-04-20',
-        quarter: 'Q2',
-        squad: 'SecOps',
-        tags: ['#ZeroTrust', '#Okta', '#Identity'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-16', text: 'Configuração do tenant corporativo no Okta', done: true },
-          { id: 'st-17', text: 'Integração SAML com Google Workspace e VPN', done: true },
-          { id: 'st-18', text: 'Comunicação interna e guia de onboarding do app', done: false }
-        ]
-      },
-      {
-        id: 'task-7',
-        title: 'Fechamento Mensal de SLAs e Relatório Executivo',
-        description: 'Consolidação do tempo médio de atendimento (MTTR) e índice de disponibilidade de sistemas (99.98%).',
-        cadence: 'monthly',
-        category: 'indicators',
-        status: 'in_progress',
-        priority: 'medium',
-        date: '2026-09-22',
-        quarter: 'Q3',
-        squad: 'Service Desk N2',
-        tags: ['#SLA', '#ServiceDesk'],
-        impact: 'low',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-19', text: 'Exportação dos tickets fechados do Jira Service Desk', done: true },
-          { id: 'st-20', text: 'Apresentação executiva para a Diretoria de Operações', done: false }
-        ]
-      },
-      {
-        id: 'task-8',
-        title: 'Checklist Diário Matinal de Testes das Aplicações',
-        description: 'Verificação operacional de login, latência de endpoints e fila de mensagens em produção.',
-        cadence: 'daily_weekly',
-        category: 'routines',
-        status: 'in_progress',
-        priority: 'high',
-        date: '2026-09-21',
-        quarter: 'Q3',
-        squad: 'Operações N1',
-        tags: ['#Checklist', '#Testes', '#AppMonitor'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-ck1', text: 'Teste de autenticação no portal do cliente', done: true },
-          { id: 'st-ck2', text: 'Verificação da latência dos gateways de pagamento', done: true },
-          { id: 'st-ck3', text: 'Inspeção do log de exceções no Sentry', done: false }
-        ]
-      },
-      {
-        id: 'task-9',
-        title: 'Go-Live do Novo ERP Corporativo SAP S/4HANA',
-        description: 'Virada de banco de dados, freeze de cadastros legados e validação das integrações fiscais e logísticas.',
-        cadence: 'quarterly',
-        category: 'projects',
-        status: 'todo',
-        priority: 'critical',
-        date: '2026-10-15',
-        quarter: 'Q4',
-        squad: 'Sistemas Corporativos',
-        tags: ['#SAP', '#ERP', '#GoLive'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-23', text: 'Corte de dados (Cutover) e freeze das tabelas antigas', done: false },
-          { id: 'st-24', text: 'Homologação da mensageria fiscal com SEFAZ', done: false }
-        ]
-      },
-      {
-        id: 'task-10',
-        title: 'Testes de Intrusão Anuais (Pentest Externo)',
-        description: 'Contratação de empresa terceira para pentest black-box e gray-box na infraestrutura exposta.',
-        cadence: 'annual',
-        category: 'security',
-        status: 'todo',
-        priority: 'high',
-        date: '2026-10-05',
-        quarter: 'Q4',
-        squad: 'SecOps',
-        tags: ['#Pentest', '#Seguranca'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-26', text: 'Definição do escopo e assinatura do NDA', done: false },
-          { id: 'st-27', text: 'Recebimento e triagem das vulnerabilidades críticas encontradas', done: false }
-        ]
-      },
-      {
-        id: 'task-11',
-        title: 'Revisão de Políticas de Backup Imutável',
-        description: 'Auditoria dos buckets AWS S3 com Object Lock ativado e retenção WORM em fita digital.',
-        cadence: 'monthly',
-        category: 'routines',
-        status: 'todo',
-        priority: 'high',
-        date: '2026-09-18', // OVERDUE
-        quarter: 'Q3',
-        squad: 'Infraestrutura',
-        tags: ['#Backup', '#RansomwareProof'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-28', text: 'Verificação da retenção mínima de 90 dias sem deleção', done: true },
-          { id: 'st-29', text: 'Restauração de teste de um banco de 500GB', done: false }
-        ]
-      },
-      {
-        id: 'task-12',
-        title: 'Manutenção Preventiva Quinzenal de Servidores e Nobreaks',
-        description: 'Limpeza de logs de transação, calibração das baterias do nobreak e inspeção térmica dos racks.',
-        cadence: 'monthly',
-        category: 'routines',
-        status: 'todo',
-        priority: 'medium',
-        date: '2026-09-26',
-        quarter: 'Q3',
-        squad: 'Infraestrutura',
-        tags: ['#Preventiva', '#Hardware', '#Datacenter'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-mp1', text: 'Inspeção dos filtros de ar dos racks', done: false },
-          { id: 'st-mp2', text: 'Auditoria da integridade dos discos RAID no Storage', done: false },
-          { id: 'st-mp3', text: 'Teste de autonomia das baterias dos no-breaks', done: false }
-        ]
-      }
-    ];
+    // Zero mocks: Calendar.io inicia 100% limpo e armazena apenas tarefas reais cadastradas pelo usuário.
+
 
     // =========================================================================
     // APPLICATION STATE
@@ -1544,6 +1307,56 @@
     };
 
     const CONTEXT_TODAY = new Date('2026-09-21T00:00:00');
+
+    // =========================================================================
+    // INDEXEDDB ENGINE (Durable browser database)
+    // =========================================================================
+    let idbDatabase = null;
+    function initIndexedDB() {
+      return new Promise((resolve) => {
+        try {
+          if (typeof window === 'undefined' || !window.indexedDB) return resolve(null);
+          const req = window.indexedDB.open('CalendarIO_Storage', 1);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('calendar_data')) {
+              db.createObjectStore('calendar_data');
+            }
+          };
+          req.onsuccess = (e) => {
+            idbDatabase = e.target.result;
+            resolve(idbDatabase);
+          };
+          req.onerror = () => resolve(null);
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    }
+
+    function idbSaveTasks(tasks) {
+      if (!idbDatabase) return;
+      try {
+        const tx = idbDatabase.transaction('calendar_data', 'readwrite');
+        const store = tx.objectStore('calendar_data');
+        store.put(tasks, 'user_tasks');
+      } catch (e) {}
+    }
+
+    function idbGetTasks() {
+      return new Promise((resolve) => {
+        if (!idbDatabase) return resolve(null);
+        try {
+          const tx = idbDatabase.transaction('calendar_data', 'readonly');
+          const store = tx.objectStore('calendar_data');
+          const req = store.get('user_tasks');
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    }
 
     // =========================================================================
     // SAFE STORAGE HELPER (Resilient fallback against Tracking Prevention blocks)
@@ -1573,7 +1386,6 @@
         try {
           if (this.isAvailable()) {
             window.localStorage.setItem(key, value);
-            return;
           }
         } catch (e) {}
         this.memoryStore[key] = String(value);
@@ -1582,7 +1394,6 @@
         try {
           if (this.isAvailable()) {
             window.localStorage.removeItem(key);
-            return;
           }
         } catch (e) {}
         delete this.memoryStore[key];
@@ -1590,9 +1401,9 @@
     };
 
     // =========================================================================
-    // INITIALIZATION & DATA LOADING
+    // INITIALIZATION & ZERO-MOCK DATA LOADING
     // =========================================================================
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       try {
         const savedTheme = SafeStorage.getItem('calendar_io_theme') || 'dark';
         setTheme(savedTheme);
@@ -1602,12 +1413,8 @@
 
       initGeminiApiKey();
 
-      try {
-        loadTasksFromStorage();
-      } catch (e) {
-        console.warn('Falha no storage, inicializando preset corporativo:', e);
-        STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
-      }
+      await initIndexedDB();
+      await loadTasksFromStorage();
 
       setupListeners();
       renderSidebarFilters();
@@ -1616,32 +1423,52 @@
       lucide.createIcons();
     });
 
-    function loadTasksFromStorage() {
+    async function loadTasksFromStorage() {
+      // 1. Tenta carregar do SafeStorage (LocalStorage)
       const stored = SafeStorage.getItem('calendar_io_tasks');
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed)) {
             STATE.tasks = parsed;
-          } else {
-            STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
-            saveTasksToStorage();
+            return;
           }
         } catch (e) {
-          console.error("Erro ao carregar dados:", e);
-          STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
-          saveTasksToStorage();
+          console.warn("Erro ao fazer parse dos dados do storage:", e);
         }
-      } else {
-        STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
-        saveTasksToStorage();
-        showToast('Modelo corporativo de TI inicializado!', 'info');
       }
+
+      // 2. Tenta carregar do IndexedDB se LocalStorage estava vazio ou bloqueado
+      try {
+        const idbTasks = await idbGetTasks();
+        if (Array.isArray(idbTasks)) {
+          STATE.tasks = idbTasks;
+          SafeStorage.setItem('calendar_io_tasks', JSON.stringify(STATE.tasks));
+          return;
+        }
+      } catch (e) {}
+
+      // 3. ZERO MOCKS: inicializa 100% limpo com array vazio
+      STATE.tasks = [];
     }
 
     function saveTasksToStorage() {
-      SafeStorage.setItem('calendar_io_tasks', JSON.stringify(STATE.tasks));
+      try {
+        SafeStorage.setItem('calendar_io_tasks', JSON.stringify(STATE.tasks));
+      } catch (e) {}
+      try {
+        idbSaveTasks(STATE.tasks);
+      } catch (e) {}
       updateMetrics();
+      updatePersistenceBadge();
+    }
+
+    function updatePersistenceBadge() {
+      const badge = document.getElementById('persistenceBadge');
+      if (badge) {
+        badge.innerHTML = `<i data-lucide="shield-check" class="w-3 h-3 text-emerald-500"></i><span>Salvo (${STATE.tasks.length})</span>`;
+        lucide.createIcons();
+      }
     }
 
     function setupListeners() {
@@ -3451,29 +3278,7 @@ Gere datas realistas em dias úteis (segunda a sexta) a partir de 2026-09-21 at�
     // =========================================================================
     // LOAD CORPORATE MODEL & RESET
     // =========================================================================
-    function loadCorporateSample() {
-      openConfirmModal(
-        'Restaurar Modelo Corporativo Completo',
-        'Deseja carregar o modelo de TI padrão com auditorias, migrações, visitas e rotinas com DoD?',
-        () => {
-          restoreCorporateModelDirectly();
-        }
-      );
-    }
 
-    function restoreCorporateModelDirectly() {
-      STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
-      saveTasksToStorage();
-      renderApp();
-      showToast('Modelo Corporativo restaurado com sucesso!', 'success');
-      try {
-        confetti({
-          particleCount: 70,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      } catch (e) {}
-    }
 
     function confirmResetAll() {
       toggleMoreMenu();
