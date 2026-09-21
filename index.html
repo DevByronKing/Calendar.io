@@ -1,0 +1,2916 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar.io IT - Calendário Inteligente & Planejamento Anual de TI</title>
+  <meta name="description" content="Plataforma executiva de gestão de atividades, roadmaps, cadências temporais e planejamento estratégico anual para equipes de TI.">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .dark ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(241, 245, 249, 0.8);
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(203, 213, 225, 0.8);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.8);
+    }
+    
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-backdrop {
+      animation: backdropIn 0.2s ease-out;
+    }
+    @keyframes backdropIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Drag & Drop Visuals */
+    .drag-over {
+      background-color: rgba(99, 102, 241, 0.08) !important;
+      border-color: rgba(99, 102, 241, 0.8) !important;
+      border-style: dashed !important;
+    }
+    .dragging {
+      opacity: 0.4;
+      transform: scale(0.98);
+    }
+
+    /* Print styling */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col transition-colors duration-200 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- TOAST CONTAINER (Floating Alerts) -->
+  <!-- ========================================================================= -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none" aria-live="polite"></div>
+
+  <!-- ========================================================================= -->
+  <!-- TOP NAVIGATION BAR -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-40 bg-white/85 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors shadow-sm">
+    <div class="max-w-[1780px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      
+      <!-- Brand & Year -->
+      <div class="flex items-center gap-3 shrink-0">
+        <button id="mobileMenuBtn" class="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i data-lucide="calendar-check-2" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
+              Calendar<span class="text-indigo-600 dark:text-indigo-400">.io</span>
+            </span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30">
+              IT Enterprise
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Planejamento Estratégico & Gestão de TI</p>
+        </div>
+      </div>
+
+      <!-- Center: 6 Executive Views Navigation -->
+      <nav class="hidden xl:flex items-center p-1 bg-slate-100 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-inner">
+        <button id="viewBtnCalendar" onclick="switchView('calendar')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+          <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+          <span>Mês</span>
+        </button>
+        <button id="viewBtnQuarter" onclick="switchView('quarter')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+          <span>Matriz Q1-Q4</span>
+        </button>
+        <button id="viewBtnKanban" onclick="switchView('kanban')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+          <i data-lucide="kanban" class="w-3.5 h-3.5"></i>
+          <span>Kanban</span>
+        </button>
+        <button id="viewBtnRoadmap" onclick="switchView('roadmap')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+          <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
+          <span>Roadmap Gantt</span>
+        </button>
+        <button id="viewBtnEisenhower" onclick="switchView('eisenhower')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+          <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+          <span>Matriz Eisenhower</span>
+        </button>
+        <button id="viewBtnAnalytics" onclick="switchView('analytics')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+          <i data-lucide="pie-chart" class="w-3.5 h-3.5"></i>
+          <span>Analytics TI</span>
+        </button>
+      </nav>
+
+      <!-- Right: Search & Actions -->
+      <div class="flex items-center gap-2">
+        <!-- Search Input -->
+        <div class="relative hidden sm:block w-40 md:w-52 lg:w-60">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input 
+            type="text" 
+            id="searchInput"
+            placeholder="Buscar tarefas, #tags..." 
+            class="w-full pl-9 pr-8 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+          >
+          <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- Corporate Sample Preset Button -->
+        <button 
+          id="loadSampleBtn"
+          onclick="loadCorporateSample()" 
+          title="Pré-carregar modelo anual completo com dados corporativos de TI"
+          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-xs font-semibold transition shadow-sm"
+        >
+          <i data-lucide="sparkles" class="w-4 h-4 text-indigo-500 dark:text-indigo-400"></i>
+          <span class="hidden 2xl:inline">Modelo Anual TI</span>
+          <span class="2xl:hidden">Modelo</span>
+        </button>
+
+        <!-- New Task Button -->
+        <button 
+          onclick="openTaskModal()" 
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold transition shadow-md shadow-indigo-600/30"
+        >
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Nova Atividade</span>
+        </button>
+
+        <!-- Quick Theme Toggle Button (Sun/Moon) -->
+        <button 
+          onclick="toggleTheme()" 
+          id="quickThemeBtn"
+          title="Alternar entre Modo Claro e Escuro"
+          class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition"
+        >
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+          <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+        </button>
+
+        <!-- Extra Tools Menu (Backup, Export, Print) -->
+        <div class="relative">
+          <button id="moreActionsBtn" onclick="toggleMoreMenu()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition">
+            <i data-lucide="more-vertical" class="w-4 h-4"></i>
+          </button>
+
+          <div id="moreMenuDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl py-1.5 z-50 text-xs text-slate-700 dark:text-slate-300 fade-in">
+            <button onclick="exportDataCSV()" class="w-full px-4 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-500"></i> Exportar Planilha (CSV/Excel)
+            </button>
+            <button onclick="exportDataJSON()" class="w-full px-4 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
+              <i data-lucide="download" class="w-4 h-4 text-indigo-500"></i> Exportar Backup (JSON)
+            </button>
+            <label class="w-full px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 cursor-pointer">
+              <i data-lucide="upload" class="w-4 h-4 text-cyan-500"></i> Importar Backup JSON
+              <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importDataJSON(event)">
+            </label>
+            <div class="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
+            <button onclick="window.print()" class="w-full px-4 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
+              <i data-lucide="printer" class="w-4 h-4 text-slate-400"></i> Imprimir / Relatório PDF
+            </button>
+            <button onclick="confirmResetAll()" class="w-full px-4 py-2 text-left hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 dark:text-red-400 flex items-center gap-2">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> Limpar Todas as Tarefas
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobile Subnav for 6 Views & Search -->
+    <div class="xl:hidden px-4 pb-3 pt-1 border-t border-slate-200 dark:border-slate-800/80 flex flex-col gap-2">
+      <div class="relative w-full">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input 
+          type="text" 
+          id="mobileSearchInput"
+          placeholder="Pesquisar atividades..." 
+          class="w-full pl-9 pr-4 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+        >
+      </div>
+      <div class="grid grid-cols-3 sm:grid-cols-6 gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-800 text-center">
+        <button onclick="switchView('calendar')" id="mViewBtnCalendar" class="py-1 text-xs font-semibold rounded-md transition">Mês</button>
+        <button onclick="switchView('quarter')" id="mViewBtnQuarter" class="py-1 text-xs font-semibold rounded-md transition">Q1-Q4</button>
+        <button onclick="switchView('kanban')" id="mViewBtnKanban" class="py-1 text-xs font-semibold rounded-md transition">Kanban</button>
+        <button onclick="switchView('roadmap')" id="mViewBtnRoadmap" class="py-1 text-xs font-semibold rounded-md transition">Gantt</button>
+        <button onclick="switchView('eisenhower')" id="mViewBtnEisenhower" class="py-1 text-xs font-semibold rounded-md transition">Matriz</button>
+        <button onclick="switchView('analytics')" id="mViewBtnAnalytics" class="py-1 text-xs font-semibold rounded-md transition">KPIs</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN LAYOUT (Sidebar + Content Workspace) -->
+  <!-- ========================================================================= -->
+  <div class="flex-1 max-w-[1780px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col lg:flex-row gap-5">
+    
+    <!-- SIDEBAR FILTERS & KPI SUMMARY -->
+    <aside id="sidebar" class="w-full lg:w-72 xl:w-80 shrink-0 flex flex-col gap-4">
+
+      <!-- Strategic Annual Progress KPI Card -->
+      <div class="bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/90 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-5 shadow-sm dark:shadow-xl relative overflow-hidden">
+        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="target" class="w-4 h-4 text-indigo-500 dark:text-indigo-400"></i> Plano Anual <span id="kpiYearLabel">2026</span>
+          </span>
+          <span id="overallPercentageBadge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30">
+            0% Concluído
+          </span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-200 dark:bg-slate-950 rounded-full h-3 p-0.5 border border-slate-200 dark:border-slate-800 mb-3.5 overflow-hidden">
+          <div id="annualProgressBar" class="h-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+
+        <!-- Metric Grid -->
+        <div class="grid grid-cols-3 gap-2 text-center pt-2 border-t border-slate-200 dark:border-slate-800/80">
+          <div class="p-2 rounded-xl bg-slate-100/70 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/50">
+            <div id="metricTotal" class="text-lg font-black text-slate-900 dark:text-white">0</div>
+            <div class="text-[10px] uppercase font-semibold text-slate-500 dark:text-slate-400">Total</div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-100/70 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/50">
+            <div id="metricInProgress" class="text-lg font-black text-cyan-600 dark:text-cyan-400">0</div>
+            <div class="text-[10px] uppercase font-semibold text-slate-500 dark:text-slate-400">Em Curso</div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-100/70 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/50">
+            <div id="metricDone" class="text-lg font-black text-emerald-600 dark:text-emerald-400">0</div>
+            <div class="text-[10px] uppercase font-semibold text-slate-500 dark:text-slate-400">Concluídas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RISK / DEADLINE ALERT BUTTON -->
+      <button 
+        id="attentionFilterBtn"
+        onclick="toggleAttentionFilter()"
+        class="w-full flex items-center justify-between p-3 rounded-2xl border transition shadow-sm bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20"
+      >
+        <div class="flex items-center gap-2 font-bold text-xs">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+          <span>Requer Atenção (SLA)</span>
+        </div>
+        <span id="attentionCountBadge" class="text-xs font-extrabold px-2 py-0.5 rounded-full bg-rose-600 text-white shadow-sm">
+          0
+        </span>
+      </button>
+
+      <!-- Filters Panel -->
+      <div class="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-4 shadow-sm dark:shadow-lg flex flex-col gap-4">
+        
+        <!-- Cadence Filters -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <i data-lucide="clock-4" class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400"></i> Cadência Temporal
+            </h3>
+            <button onclick="resetFilters()" id="clearFiltersBtn" class="hidden text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">
+              Limpar Filtros
+            </button>
+          </div>
+          <div class="space-y-1" id="cadenceFilterList">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="h-px bg-slate-200 dark:bg-slate-800/80"></div>
+
+        <!-- Categories Filters -->
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-2">
+            <i data-lucide="tag" class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400"></i> Categorias de TI
+          </h3>
+          <div class="space-y-1" id="categoryFilterList">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <div class="h-px bg-slate-200 dark:bg-slate-800/80"></div>
+
+        <!-- Tags Filter Section -->
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-2">
+            <i data-lucide="hash" class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400"></i> Tags Populares
+          </h3>
+          <div class="flex flex-wrap gap-1.5" id="tagFilterChips">
+            <!-- Dynamic tags -->
+          </div>
+        </div>
+
+        <div class="h-px bg-slate-200 dark:bg-slate-800/80"></div>
+
+        <!-- Status Filter Pills -->
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-2">
+            <i data-lucide="list-checks" class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400"></i> Status
+          </h3>
+          <div class="grid grid-cols-3 gap-1.5" id="statusFilterGrid">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </aside>
+
+    <!-- ======================================================================= -->
+    <!-- WORKSPACE / DYNAMIC VIEWS -->
+    <!-- ======================================================================= -->
+    <main class="flex-1 flex flex-col min-w-0">
+      
+      <!-- Top Context Banner (Changes according to View) -->
+      <div id="viewHeader" class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 p-4 rounded-2xl shadow-sm">
+        <!-- Dynamically injected view controls/title -->
+      </div>
+
+      <!-- VIEW 1: CALENDAR VIEW -->
+      <div id="viewCalendar" class="flex-1 flex flex-col">
+        <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-sm dark:shadow-xl flex-1 flex flex-col">
+          <!-- Calendar Days Grid Header (Sun - Sat) -->
+          <div class="grid grid-cols-7 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 text-center py-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <div>Dom</div>
+            <div>Seg</div>
+            <div>Ter</div>
+            <div>Qua</div>
+            <div>Qui</div>
+            <div>Sex</div>
+            <div>Sáb</div>
+          </div>
+          <!-- Days Cells Container -->
+          <div id="calendarGrid" class="grid grid-cols-7 auto-rows-fr flex-1 divide-x divide-y divide-slate-200 dark:divide-slate-800/70 bg-white dark:bg-slate-950/30">
+            <!-- Day boxes injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 2: QUARTER MATRIX VIEW (Q1 - Q4) -->
+      <div id="viewQuarter" class="hidden flex-1 flex flex-col">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 flex-1">
+          <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm dark:shadow-lg" id="colQ1"></div>
+          <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm dark:shadow-lg" id="colQ2"></div>
+          <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm dark:shadow-lg" id="colQ3"></div>
+          <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm dark:shadow-lg" id="colQ4"></div>
+        </div>
+      </div>
+
+      <!-- VIEW 3: KANBAN BOARD VIEW (With HTML5 Drag & Drop) -->
+      <div id="viewKanban" class="hidden flex-1 flex flex-col">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 flex-1">
+          <!-- Column: To Do -->
+          <div 
+            class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm dark:shadow-lg transition-colors"
+            id="kanbanDropTodo"
+            ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)"
+            ondrop="handleDrop(event, 'todo')"
+          >
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200">A Fazer (Backlog)</h3>
+              </div>
+              <span id="kanbanCountTodo" class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300">0</span>
+            </div>
+            <div id="kanbanColTodo" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[150px]"></div>
+          </div>
+
+          <!-- Column: In Progress -->
+          <div 
+            class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm dark:shadow-lg transition-colors"
+            id="kanbanDropInProgress"
+            ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)"
+            ondrop="handleDrop(event, 'in_progress')"
+          >
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse"></span>
+                <h3 class="font-bold text-sm text-cyan-600 dark:text-cyan-300">Em Andamento</h3>
+              </div>
+              <span id="kanbanCountInProgress" class="px-2 py-0.5 rounded-full bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800/50 text-xs font-bold">0</span>
+            </div>
+            <div id="kanbanColInProgress" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[150px]"></div>
+          </div>
+
+          <!-- Column: Done -->
+          <div 
+            class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm dark:shadow-lg transition-colors"
+            id="kanbanDropDone"
+            ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)"
+            ondrop="handleDrop(event, 'done')"
+          >
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <h3 class="font-bold text-sm text-emerald-600 dark:text-emerald-300">Concluído</h3>
+              </div>
+              <span id="kanbanCountDone" class="px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 text-xs font-bold">0</span>
+            </div>
+            <div id="kanbanColDone" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[150px]"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 4: ROADMAP / GANTT EXECUTIVO VIEW -->
+      <div id="viewRoadmap" class="hidden flex-1 flex flex-col">
+        <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm dark:shadow-xl flex-1 flex flex-col overflow-x-auto">
+          <!-- Timeline Months Header -->
+          <div class="min-w-[860px]">
+            <div class="grid grid-cols-12 gap-1 pb-3 mb-4 border-b border-slate-200 dark:border-slate-800 text-center text-xs font-bold text-slate-500 dark:text-slate-400">
+              <div>Jan (Q1)</div><div>Fev</div><div>Mar</div>
+              <div>Abr (Q2)</div><div>Mai</div><div>Jun</div>
+              <div>Jul (Q3)</div><div>Ago</div><div>Set</div>
+              <div>Out (Q4)</div><div>Nov</div><div>Dez</div>
+            </div>
+            <div id="roadmapBarsContainer" class="space-y-3">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 5: MATRIZ EISENHOWER (IMPACTO X URGÊNCIA) -->
+      <div id="viewEisenhower" class="hidden flex-1 flex flex-col">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+          <!-- Quadrant 1: Foco Imediato -->
+          <div class="bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 rounded-2xl p-4 flex flex-col shadow-sm">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-rose-200 dark:border-rose-900/50">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🔥</span>
+                <div>
+                  <h3 class="font-bold text-xs uppercase tracking-wider text-rose-700 dark:text-rose-400">1. Foco Imediato</h3>
+                  <p class="text-[11px] text-rose-600/70 dark:text-rose-300/70">Alto Impacto + Alta Urgência</p>
+                </div>
+              </div>
+              <span id="countEisenhowerQ1" class="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-200 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200">0</span>
+            </div>
+            <div id="eisenhowerColQ1" class="space-y-2.5 flex-1 overflow-y-auto pr-1"></div>
+          </div>
+
+          <!-- Quadrant 2: Projetos Estratégicos -->
+          <div class="bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/40 rounded-2xl p-4 flex flex-col shadow-sm">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-indigo-200 dark:border-indigo-900/50">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🚀</span>
+                <div>
+                  <h3 class="font-bold text-xs uppercase tracking-wider text-indigo-700 dark:text-indigo-400">2. Estratégico & Inovação</h3>
+                  <p class="text-[11px] text-indigo-600/70 dark:text-indigo-300/70">Alto Impacto + Não Urgente</p>
+                </div>
+              </div>
+              <span id="countEisenhowerQ2" class="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-200 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-200">0</span>
+            </div>
+            <div id="eisenhowerColQ2" class="space-y-2.5 flex-1 overflow-y-auto pr-1"></div>
+          </div>
+
+          <!-- Quadrant 3: Sustentação Operacional -->
+          <div class="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4 flex flex-col shadow-sm">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-amber-200 dark:border-amber-900/50">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🔄</span>
+                <div>
+                  <h3 class="font-bold text-xs uppercase tracking-wider text-amber-700 dark:text-amber-400">3. Sustentação & Rotinas</h3>
+                  <p class="text-[11px] text-amber-600/70 dark:text-amber-300/70">Baixo Impacto + Alta Urgência</p>
+                </div>
+              </div>
+              <span id="countEisenhowerQ3" class="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-200 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200">0</span>
+            </div>
+            <div id="eisenhowerColQ3" class="space-y-2.5 flex-1 overflow-y-auto pr-1"></div>
+          </div>
+
+          <!-- Quadrant 4: Backlog / Postergar -->
+          <div class="bg-slate-100/60 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col shadow-sm">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-200 dark:border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="text-base">⏳</span>
+                <div>
+                  <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-400">4. Backlog Secundário</h3>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-500">Baixo Impacto + Baixa Urgência</p>
+                </div>
+              </div>
+              <span id="countEisenhowerQ4" class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">0</span>
+            </div>
+            <div id="eisenhowerColQ4" class="space-y-2.5 flex-1 overflow-y-auto pr-1"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 6: ANALYTICS & DASHBOARD DE SAÚDE TI -->
+      <div id="viewAnalytics" class="hidden flex-1 flex flex-col gap-5">
+        <!-- Top Analytics KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          
+          <!-- Health Score -->
+          <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <i data-lucide="shield-check" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Saúde Geral de TI</span>
+              <div class="text-2xl font-black text-slate-900 dark:text-white" id="analyticsHealthScore">100%</div>
+              <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold" id="analyticsHealthSubtitle">Operação Saudável</span>
+            </div>
+          </div>
+
+          <!-- On-time Deliveries -->
+          <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <i data-lucide="check-check" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">No Prazo (SLA)</span>
+              <div class="text-2xl font-black text-slate-900 dark:text-white" id="analyticsOnTimeCount">0</div>
+              <span class="text-[10px] text-slate-500 font-semibold">Entregas dentro do prazo</span>
+            </div>
+          </div>
+
+          <!-- Overdue & At Risk -->
+          <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400">
+              <i data-lucide="alert-octagon" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Atrasadas / Risco</span>
+              <div class="text-2xl font-black text-rose-600 dark:text-rose-400" id="analyticsOverdueCount">0</div>
+              <span class="text-[10px] text-rose-500 font-semibold">Requerem plano de ação</span>
+            </div>
+          </div>
+
+          <!-- Definition of Done Items -->
+          <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/30 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+              <i data-lucide="list-todo" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Critérios DoD Marcados</span>
+              <div class="text-2xl font-black text-slate-900 dark:text-white" id="analyticsDodRatio">0/0</div>
+              <span class="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold" id="analyticsDodPercent">0% dos critérios</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Charts Grid (Squads & Categories) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 flex-1">
+          <!-- Squad Workload Bar Chart -->
+          <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm flex flex-col">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-4">
+              <i data-lucide="users" class="w-4 h-4 text-indigo-500"></i> Distribuição de Carga por Squad de TI
+            </h3>
+            <div id="analyticsSquadChart" class="space-y-3 flex-1 overflow-y-auto">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+
+          <!-- Category Breakdown Progress Chart -->
+          <div class="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm flex flex-col">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-4">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-500"></i> Volume e Conclusão por Categoria
+            </h3>
+            <div id="analyticsCategoryChart" class="space-y-3 flex-1 overflow-y-auto">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: ADD / EDIT ACTIVITY (With Subtasks DoD & Tags) -->
+  <!-- ========================================================================= -->
+  <div id="taskModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm modal-backdrop" onclick="closeTaskModal()"></div>
+    
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden z-10 fade-in flex flex-col max-h-[92vh]">
+      
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-200 dark:border-indigo-500/30">
+            <i data-lucide="edit-3" class="w-4 h-4" id="modalIcon"></i>
+          </div>
+          <h2 id="modalTitle" class="text-base font-bold text-slate-900 dark:text-white">Nova Atividade de TI</h2>
+        </div>
+        <button onclick="closeTaskModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Form Body -->
+      <form id="taskForm" onsubmit="handleTaskFormSubmit(event)" class="p-6 space-y-4 overflow-y-auto flex-1 text-slate-800 dark:text-slate-200">
+        <input type="hidden" id="taskId">
+
+        <!-- Title -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Título da Atividade *</label>
+          <input 
+            type="text" 
+            id="taskTitleInput" 
+            required 
+            placeholder="Ex: Auditoria de Segurança SOC2 / ISO 27001" 
+            class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+          >
+        </div>
+
+        <!-- Cadence and Category -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Cadência Temporal *</label>
+            <select id="taskCadenceInput" required class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+              <option value="daily_weekly">⚡ Diária / Semanal</option>
+              <option value="monthly">🔄 Mensal</option>
+              <option value="quarterly">🎯 Trimestral (Q1-Q4)</option>
+              <option value="annual">🏛️ Anual (Estratégica)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Categoria de TI *</label>
+            <select id="taskCategoryInput" required class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+              <option value="projects">🚀 Projetos</option>
+              <option value="routines">🔄 Rotinas & Operações</option>
+              <option value="training">🎓 Capacitação</option>
+              <option value="indicators">📊 Indicadores / Auditoria</option>
+              <option value="security">🛡️ Segurança & Infra</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Status and Priority -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Status *</label>
+            <select id="taskStatusInput" required class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+              <option value="todo">⏳ A Fazer</option>
+              <option value="in_progress">⚡ Em Andamento</option>
+              <option value="done">✅ Concluído</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Prioridade *</label>
+            <select id="taskPriorityInput" required class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+              <option value="low">🟢 Baixa</option>
+              <option value="medium" selected>🔵 Média</option>
+              <option value="high">🟠 Alta</option>
+              <option value="critical">🔴 Crítica</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Date & Quarter -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Data Alvo / SLA *</label>
+            <input type="date" id="taskDateInput" required class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Trimestre Alvo</label>
+            <select id="taskQuarterInput" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+              <option value="Q1">Q1 (Jan - Mar)</option>
+              <option value="Q2">Q2 (Abr - Jun)</option>
+              <option value="Q3">Q3 (Jul - Set)</option>
+              <option value="Q4">Q4 (Out - Dez)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Squad and Tags -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Squad / Time</label>
+            <input type="text" id="taskSquadInput" placeholder="Ex: SecOps, DevOps, Infra, Suporte" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Tags (separadas por vírgula)</label>
+            <input type="text" id="taskTagsInput" placeholder="Ex: #AWS, #Compliance, #LGPD" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <!-- Eisenhower Quadrant Matrix (Impact & Urgency) -->
+        <div class="p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80 rounded-xl">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">Classificação Eisenhower (Matriz de Decisão)</label>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <span class="text-[11px] text-slate-500 font-semibold block mb-1">Impacto no Negócio:</span>
+              <select id="taskImpactInput" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white">
+                <option value="high">Alto Impacto</option>
+                <option value="low">Baixo Impacto</option>
+              </select>
+            </div>
+            <div>
+              <span class="text-[11px] text-slate-500 font-semibold block mb-1">Urgência / Prazo:</span>
+              <select id="taskUrgencyInput" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white">
+                <option value="high">Alta Urgência (Imediato)</option>
+                <option value="low">Baixa Urgência (Planejado)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subtasks (Definition of Done - DoD) Builder -->
+        <div class="p-3.5 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-xl space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="check-square" class="w-3.5 h-3.5 text-indigo-500"></i> Checklist / Definition of Done (DoD)
+            </label>
+            <span class="text-[10px] text-slate-500">Critérios de aceite</span>
+          </div>
+
+          <div id="subtasksModalList" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+            <!-- Dynamic subtasks items -->
+          </div>
+
+          <div class="flex items-center gap-2 pt-1">
+            <input 
+              type="text" 
+              id="newSubtaskInput" 
+              placeholder="Adicionar critério de entrega..." 
+              class="flex-1 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500"
+              onkeydown="if(event.key === 'Enter'){ event.preventDefault(); addSubtaskFromInput(); }"
+            >
+            <button 
+              type="button" 
+              onclick="addSubtaskFromInput()" 
+              class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition"
+            >
+              Adicionar
+            </button>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Descrição / Escopo</label>
+          <textarea id="taskDescriptionInput" rows="2" placeholder="Detalhes da entrega..." class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500"></textarea>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="pt-2 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
+          <button type="button" id="deleteTaskBtn" onclick="confirmDeleteCurrentTask()" class="hidden px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold transition">
+            Excluir Atividade
+          </button>
+          
+          <div class="flex items-center gap-2 ml-auto">
+            <button type="button" onclick="closeTaskModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold transition">
+              Cancelar
+            </button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold transition shadow-lg shadow-indigo-600/30">
+              Salvar Atividade
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: TASK DETAILS (View Only with Live Subtasks Toggle) -->
+  <!-- ========================================================================= -->
+  <div id="taskDetailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm modal-backdrop" onclick="closeTaskDetailModal()"></div>
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden z-10 fade-in flex flex-col p-6 space-y-4">
+      <div class="flex items-start justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex flex-wrap items-center gap-1.5 mb-1" id="detailBadges"></div>
+          <h2 id="detailTitle" class="text-base font-bold text-slate-900 dark:text-white leading-snug"></h2>
+        </div>
+        <button onclick="closeTaskDetailModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-xl p-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap min-h-[50px]" id="detailDescription"></div>
+
+      <!-- Checklist DoD Interactive Section in Detail Modal -->
+      <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80 space-y-2">
+        <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+          <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-indigo-500"></i> Critérios de Aceite (DoD)</span>
+          <span id="detailSubtasksCount" class="text-[11px] text-indigo-600 dark:text-indigo-400">0/0</span>
+        </div>
+        <div id="detailSubtasksList" class="space-y-1.5 text-xs max-h-36 overflow-y-auto pr-1">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 text-xs">
+        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/60">
+          <span class="text-slate-400 block text-[10px] uppercase font-bold">Data Alvo</span>
+          <span id="detailDate" class="font-semibold text-slate-800 dark:text-slate-200"></span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/60">
+          <span class="text-slate-400 block text-[10px] uppercase font-bold">SLA Prazo</span>
+          <span id="detailSlaBadge" class="font-semibold"></span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/60">
+          <span class="text-slate-400 block text-[10px] uppercase font-bold">Squad</span>
+          <span id="detailSquad" class="font-semibold text-indigo-600 dark:text-indigo-400"></span>
+        </div>
+      </div>
+
+      <div class="pt-2 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
+        <button id="detailCycleStatusBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition">
+          <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
+          <span>Avançar Status</span>
+        </button>
+
+        <div class="flex items-center gap-2">
+          <button id="detailEditBtn" class="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-600/20 hover:bg-indigo-100 dark:hover:bg-indigo-600/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-xs font-semibold transition">
+            Editar
+          </button>
+          <button onclick="closeTaskDetailModal()" class="px-4 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold transition">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: CONFIRMATION PROMPT -->
+  <!-- ========================================================================= -->
+  <div id="confirmModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm modal-backdrop" onclick="closeConfirmModal(false)"></div>
+    <div class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden z-10 fade-in p-6 text-center space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h3 id="confirmModalTitle" class="text-base font-bold text-slate-900 dark:text-white mb-1">Confirmação</h3>
+        <p id="confirmModalMessage" class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed"></p>
+      </div>
+      <div class="flex items-center justify-center gap-3 pt-2">
+        <button onclick="closeConfirmModal(false)" class="w-full px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold transition">
+          Cancelar
+        </button>
+        <button id="confirmModalActionBtn" class="w-full px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition shadow-lg shadow-rose-600/30">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <!-- ========================================================================= -->
+  <script>
+    /**
+     * CALENDAR.IO IT - EXECUTIVE ROADMAP & TASK PLATFORM
+     */
+
+    const CATEGORIES = {
+      projects: { id: 'projects', name: 'Projetos', icon: 'rocket', badgeClass: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/30', dotColor: '#6366f1', prefix: '🚀' },
+      routines: { id: 'routines', name: 'Rotinas', icon: 'refresh-cw', badgeClass: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30', dotColor: '#10b981', prefix: '🔄' },
+      training: { id: 'training', name: 'Capacitação', icon: 'graduation-cap', badgeClass: 'bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-500/30', dotColor: '#a855f7', prefix: '🎓' },
+      indicators: { id: 'indicators', name: 'Indicadores', icon: 'bar-chart-3', badgeClass: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30', dotColor: '#f59e0b', prefix: '📊' },
+      security: { id: 'security', name: 'Segurança & Infra', icon: 'shield-check', badgeClass: 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/30', dotColor: '#f43f5e', prefix: '🛡️' }
+    };
+
+    const CADENCES = {
+      daily_weekly: { id: 'daily_weekly', name: 'Diária / Semanal', icon: 'zap', color: 'text-cyan-600 dark:text-cyan-400' },
+      monthly: { id: 'monthly', name: 'Mensal', icon: 'repeat', color: 'text-teal-600 dark:text-teal-400' },
+      quarterly: { id: 'quarterly', name: 'Trimestral (Q1-Q4)', icon: 'layout-grid', color: 'text-indigo-600 dark:text-indigo-400' },
+      annual: { id: 'annual', name: 'Anual (Estratégico)', icon: 'trophy', color: 'text-violet-600 dark:text-violet-400' }
+    };
+
+    const STATUSES = {
+      todo: { id: 'todo', name: 'A Fazer', color: 'text-slate-500', bg: 'bg-slate-100 dark:bg-slate-800' },
+      in_progress: { id: 'in_progress', name: 'Em Andamento', color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-50 dark:bg-cyan-950/60' },
+      done: { id: 'done', name: 'Concluído', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/60' }
+    };
+
+    const PRIORITIES = {
+      low: { id: 'low', name: 'Baixa', dot: 'bg-slate-400' },
+      medium: { id: 'medium', name: 'Média', dot: 'bg-sky-400' },
+      high: { id: 'high', name: 'Alta', dot: 'bg-amber-400' },
+      critical: { id: 'critical', name: 'Crítica', dot: 'bg-rose-500' }
+    };
+
+    // Realistic Corporate IT Preset with Subtasks (DoD), Tags, and Impact/Urgency
+    const CORPORATE_IT_PRESET = [
+      {
+        id: 'task-1',
+        title: 'Auditoria de Segurança SOC2 & ISO 27001',
+        description: 'Revisão das evidências de controle de acesso, criptografia e políticas de retenção de logs com os auditores.',
+        cadence: 'quarterly',
+        category: 'indicators',
+        status: 'done',
+        priority: 'critical',
+        date: '2026-02-18',
+        quarter: 'Q1',
+        squad: 'SecOps & Governança',
+        tags: ['#Compliance', '#SOC2', '#Auditoria'],
+        impact: 'high',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-1', text: 'Coleta de evidências de controle de acesso', done: true },
+          { id: 'st-2', text: 'Auditoria dos logs do CloudTrail e SIEM', done: true },
+          { id: 'st-3', text: 'Entrevista de conformidade com equipe de RH', done: true },
+          { id: 'st-4', text: 'Emissão do relatório prévio com os auditores', done: true }
+        ]
+      },
+      {
+        id: 'task-2',
+        title: 'Migração do Cluster Kubernetes para EKS v1.30',
+        description: 'Upgrade dos nós operacionais de produção, validação de compatibilidade com Helm charts e teste de autoscaling.',
+        cadence: 'quarterly',
+        category: 'projects',
+        status: 'done',
+        priority: 'high',
+        date: '2026-03-12',
+        quarter: 'Q1',
+        squad: 'DevOps',
+        tags: ['#Kubernetes', '#AWS', '#Cloud'],
+        impact: 'high',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-5', text: 'Homologação dos manifestos em staging', done: true },
+          { id: 'st-6', text: 'Atualização do Ingress Controller Traefik', done: true },
+          { id: 'st-7', text: 'Drain e substituição gradual dos nós em produção', done: true }
+        ]
+      },
+      {
+        id: 'task-3',
+        title: 'Renovação Contratual Microsoft & VMware',
+        description: 'Fechamento anual de licenças de virtualização e pacote corporativo Office 365 / Entra ID com o setor de compras.',
+        cadence: 'annual',
+        category: 'routines',
+        status: 'done',
+        priority: 'medium',
+        date: '2026-01-25',
+        quarter: 'Q1',
+        squad: 'Gestão de Ativos',
+        tags: ['#FinOps', '#Licencas'],
+        impact: 'low',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-8', text: 'Inventário de usuários ativos no Entra ID', done: true },
+          { id: 'st-9', text: 'Negociação de desconto de volume com parceiro', done: true }
+        ]
+      },
+      {
+        id: 'task-4',
+        title: 'Treinamento AWS Solutions Architect Pro',
+        description: 'Capacitação imersiva de 4 engenheiros de cloud com simulados e vouchers de certificação oficial.',
+        cadence: 'quarterly',
+        category: 'training',
+        status: 'done',
+        priority: 'medium',
+        date: '2026-03-28',
+        quarter: 'Q1',
+        squad: 'Engenharia de Cloud',
+        tags: ['#AWS', '#Certificacao'],
+        impact: 'high',
+        urgency: 'low',
+        subtasks: [
+          { id: 'st-10', text: 'Conclusão dos módulos de High Availability', done: true },
+          { id: 'st-11', text: 'Agendamento e realização dos exames oficiais', done: true }
+        ]
+      },
+      {
+        id: 'task-5',
+        title: 'Simulado Anual de Disaster Recovery (DRP)',
+        description: 'Failover controlado do Datacenter Primário para a região secundária da nuvem em ambiente isolado.',
+        cadence: 'quarterly',
+        category: 'routines',
+        status: 'in_progress',
+        priority: 'critical',
+        date: '2026-05-15',
+        quarter: 'Q2',
+        squad: 'Infraestrutura',
+        tags: ['#DRP', '#Seguranca', '#Bancos'],
+        impact: 'high',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-12', text: 'Validação dos snapshots imutáveis em outra região', done: true },
+          { id: 'st-13', text: 'Comunicação e alinhamento de janela com o negócio', done: true },
+          { id: 'st-14', text: 'Execução do teste de failover dos bancos PostgreSQL', done: false },
+          { id: 'st-15', text: 'Relatório pós-incidente e cálculo de RPO/RTO', done: false }
+        ]
+      },
+      {
+        id: 'task-6',
+        title: 'Implantação de MFA / SSO com Okta',
+        description: 'Rollout obrigatório de autenticação FIDO2 e push mobile para todos os 1.200 colaboradores da empresa.',
+        cadence: 'quarterly',
+        category: 'security',
+        status: 'in_progress',
+        priority: 'high',
+        date: '2026-04-20',
+        quarter: 'Q2',
+        squad: 'SecOps',
+        tags: ['#ZeroTrust', '#Okta', '#Identity'],
+        impact: 'high',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-16', text: 'Configuração do tenant corporativo no Okta', done: true },
+          { id: 'st-17', text: 'Integração SAML com Google Workspace e VPN', done: true },
+          { id: 'st-18', text: 'Comunicação interna e guia de onboarding do app', done: false }
+        ]
+      },
+      {
+        id: 'task-7',
+        title: 'Fechamento Mensal de SLAs e Relatório Executivo',
+        description: 'Consolidação do tempo médio de atendimento (MTTR) e índice de disponibilidade de sistemas (99.98%).',
+        cadence: 'monthly',
+        category: 'indicators',
+        status: 'in_progress',
+        priority: 'medium',
+        date: '2026-09-22',
+        quarter: 'Q3',
+        squad: 'Service Desk N2',
+        tags: ['#SLA', '#ServiceDesk'],
+        impact: 'low',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-19', text: 'Exportação dos tickets fechados do Jira Service Desk', done: true },
+          { id: 'st-20', text: 'Apresentação executiva para a Diretoria de Operações', done: false }
+        ]
+      },
+      {
+        id: 'task-8',
+        title: 'Workshop DevSecOps: Shift-Left & SAST/DAST',
+        description: 'Treinamento prático integrando SonarQube e Trivy nos pipelines CI/CD do GitLab.',
+        cadence: 'quarterly',
+        category: 'training',
+        status: 'todo',
+        priority: 'low',
+        date: '2026-09-28',
+        quarter: 'Q3',
+        squad: 'Engenharia de Software',
+        tags: ['#DevSecOps', '#GitLab'],
+        impact: 'high',
+        urgency: 'low',
+        subtasks: [
+          { id: 'st-21', text: 'Criação do repositório template com pipeline seguro', done: false },
+          { id: 'st-22', text: 'Sessão ao vivo de 2 horas com os times de desenvolvimento', done: false }
+        ]
+      },
+      {
+        id: 'task-9',
+        title: 'Go-Live do Novo ERP Corporativo SAP S/4HANA',
+        description: 'Virada de banco de dados, freeze de cadastros legados e validação das integrações fiscais e logísticas.',
+        cadence: 'quarterly',
+        category: 'projects',
+        status: 'todo',
+        priority: 'critical',
+        date: '2026-10-15',
+        quarter: 'Q4',
+        squad: 'Sistemas Corporativos',
+        tags: ['#SAP', '#ERP', '#GoLive'],
+        impact: 'high',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-23', text: 'Corte de dados (Cutover) e freeze das tabelas antigas', done: false },
+          { id: 'st-24', text: 'Homologação da mensageria fiscal com SEFAZ', done: false },
+          { id: 'st-25', text: 'Plantão de Hypercare 24x7 na primeira semana', done: false }
+        ]
+      },
+      {
+        id: 'task-10',
+        title: 'Testes de Intrusão Anuais (Pentest Externo)',
+        description: 'Contratação de empresa terceira para pentest black-box e gray-box na infraestrutura exposta.',
+        cadence: 'annual',
+        category: 'security',
+        status: 'todo',
+        priority: 'high',
+        date: '2026-10-05',
+        quarter: 'Q4',
+        squad: 'SecOps',
+        tags: ['#Pentest', '#Seguranca'],
+        impact: 'high',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-26', text: 'Definição do escopo e assinatura do NDA', done: false },
+          { id: 'st-27', text: 'Recebimento e triagem das vulnerabilidades críticas encontradas', done: false }
+        ]
+      },
+      {
+        id: 'task-11',
+        title: 'Revisão de Políticas de Backup Imutável',
+        description: 'Auditoria dos buckets AWS S3 com Object Lock ativado e retenção WORM em fita digital.',
+        cadence: 'monthly',
+        category: 'routines',
+        status: 'todo',
+        priority: 'high',
+        date: '2026-09-18', // OVERDUE ON PURPOSE TO DEMO RISK ENGINE
+        quarter: 'Q3',
+        squad: 'Infraestrutura',
+        tags: ['#Backup', '#RansomwareProof'],
+        impact: 'high',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-28', text: 'Verificação da retenção mínima de 90 dias sem deleção', done: true },
+          { id: 'st-29', text: 'Restauração de teste de um banco de 500GB', done: false }
+        ]
+      },
+      {
+        id: 'task-12',
+        title: 'Hackathon Interno: Automações com GenAI',
+        description: 'Competição de 48 horas para criar agentes inteligentes de suporte técnico e triagem de chamados.',
+        cadence: 'annual',
+        category: 'training',
+        status: 'todo',
+        priority: 'medium',
+        date: '2026-11-20',
+        quarter: 'Q4',
+        squad: 'Inovação TI',
+        tags: ['#IA', '#Automacao'],
+        impact: 'high',
+        urgency: 'low',
+        subtasks: [
+          { id: 'st-30', text: 'Premiação e jurados definidos', done: false },
+          { id: 'st-31', text: 'Apresentação dos protótipos para a diretoria', done: false }
+        ]
+      },
+      {
+        id: 'task-13',
+        title: 'Planejamento Orçamentário de TI 2027 (CAPEX/OPEX)',
+        description: 'Levantamento de demandas de novos servidores, links redundantes, licenças de software e headcount.',
+        cadence: 'annual',
+        category: 'indicators',
+        status: 'todo',
+        priority: 'critical',
+        date: '2026-11-14',
+        quarter: 'Q4',
+        squad: 'Diretoria & FinOps',
+        tags: ['#CAPEX', '#OPEX', '#Orcamento'],
+        impact: 'high',
+        urgency: 'low',
+        subtasks: [
+          { id: 'st-32', text: 'Coleta das demandas de hardware com os líderes de squad', done: false },
+          { id: 'st-33', text: 'Apresentação da planilha consolidada ao CFO', done: false }
+        ]
+      },
+      {
+        id: 'task-14',
+        title: 'Modernização de Switches Core e Wi-Fi 6',
+        description: 'Substituição do parque de switches e access points nos prédios da sede e filiais.',
+        cadence: 'quarterly',
+        category: 'projects',
+        status: 'todo',
+        priority: 'high',
+        date: '2026-10-25',
+        quarter: 'Q4',
+        squad: 'Redes & Telecom',
+        tags: ['#Redes', '#Hardware'],
+        impact: 'low',
+        urgency: 'low',
+        subtasks: [
+          { id: 'st-34', text: 'Recebimento dos equipamentos homologados', done: false },
+          { id: 'st-35', text: 'Janela noturna de migração das VLANs', done: false }
+        ]
+      },
+      {
+        id: 'task-15',
+        title: 'Renovação de Certificados Digitais SSL Wildcard',
+        description: 'Atualização e verificação de expiração dos certificados dos domínios principais e API gateways.',
+        cadence: 'monthly',
+        category: 'routines',
+        status: 'todo',
+        priority: 'high',
+        date: '2026-11-05',
+        quarter: 'Q4',
+        squad: 'DevOps',
+        tags: ['#SSL', '#SecOps'],
+        impact: 'high',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-36', text: 'Emissão da CSR com chave de 4096 bits', done: false },
+          { id: 'st-37', text: 'Deploy nos Load Balancers AWS ALB', done: false }
+        ]
+      },
+      {
+        id: 'task-16',
+        title: 'Retrospectiva Anual de TI & Balanço de Metas',
+        description: 'Apresentação dos resultados de SLA, projetos entregues, incidentes P1 e metas alcançadas à Diretoria.',
+        cadence: 'annual',
+        category: 'indicators',
+        status: 'todo',
+        priority: 'medium',
+        date: '2026-12-10',
+        quarter: 'Q4',
+        squad: 'Gestão Executiva',
+        tags: ['#Diretoria', '#Metas'],
+        impact: 'high',
+        urgency: 'low',
+        subtasks: [
+          { id: 'st-38', text: 'Consolidação dos KPIs de uptime de 99.9%', done: false },
+          { id: 'st-39', text: 'Publicação do relatório anual de TI para a companhia', done: false }
+        ]
+      },
+      {
+        id: 'task-17',
+        title: 'Checklist Matinal de Datacenter & Servidores',
+        description: 'Verificação diária de temperatura dos racks, alertas de storage SAN e status dos no-breaks.',
+        cadence: 'daily_weekly',
+        category: 'routines',
+        status: 'in_progress',
+        priority: 'medium',
+        date: '2026-09-21',
+        quarter: 'Q3',
+        squad: 'Operações N1',
+        tags: ['#Checklist', '#Datacenter'],
+        impact: 'low',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-40', text: 'Inspeção física dos displays de ar condicionado de precisão', done: true },
+          { id: 'st-41', text: 'Conferência do painel de alarmes do Zabbix', done: true }
+        ]
+      },
+      {
+        id: 'task-18',
+        title: 'Patch Tuesday & Homologação de Atualizações',
+        description: 'Distribuição controlada de patches da Microsoft e kernels Linux em ambiente de staging.',
+        cadence: 'daily_weekly',
+        category: 'security',
+        status: 'todo',
+        priority: 'high',
+        date: '2026-09-25',
+        quarter: 'Q3',
+        squad: 'Infraestrutura',
+        tags: ['#PatchTuesday', '#Seguranca'],
+        impact: 'high',
+        urgency: 'high',
+        subtasks: [
+          { id: 'st-42', text: 'Aprovação dos pacotes no WSUS corporativo', done: false },
+          { id: 'st-43', text: 'Reinicialização programada dos servidores secundários', done: false }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // APPLICATION STATE
+    // =========================================================================
+    const STATE = {
+      tasks: [],
+      currentView: 'calendar', // 'calendar' | 'quarter' | 'kanban' | 'roadmap' | 'eisenhower' | 'analytics'
+      currentYear: 2026,
+      currentMonth: 8, // 0 = Jan, 8 = Setembro
+      activeCadence: 'all',
+      activeCategory: 'all',
+      activeStatus: 'all',
+      activeTag: 'all',
+      filterOnlyAttention: false,
+      searchQuery: '',
+      pendingConfirmCallback: null,
+      theme: 'dark',
+      draggedTaskId: null,
+      currentEditingSubtasks: []
+    };
+
+    // Current Virtual Context Date for Demo Pacing (September 21, 2026)
+    const CONTEXT_TODAY = new Date('2026-09-21T00:00:00');
+
+    // =========================================================================
+    // INITIALIZATION & LOCALSTORAGE
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Saved Theme
+      const savedTheme = localStorage.getItem('calendar_io_theme') || 'dark';
+      setTheme(savedTheme);
+
+      // Load tasks
+      loadTasksFromStorage();
+
+      // Listeners
+      setupListeners();
+
+      // Render
+      renderSidebarFilters();
+      renderApp();
+
+      lucide.createIcons();
+    });
+
+    function loadTasksFromStorage() {
+      const stored = localStorage.getItem('calendar_io_tasks');
+      if (stored) {
+        try {
+          STATE.tasks = JSON.parse(stored);
+        } catch (e) {
+          console.error("Erro ao carregar dados:", e);
+          STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
+          saveTasksToStorage();
+        }
+      } else {
+        STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
+        saveTasksToStorage();
+        showToast('Modelo anual corporativo de TI carregado com sucesso!', 'info');
+      }
+    }
+
+    function saveTasksToStorage() {
+      localStorage.setItem('calendar_io_tasks', JSON.stringify(STATE.tasks));
+      updateMetrics();
+    }
+
+    function setupListeners() {
+      const search = document.getElementById('searchInput');
+      const mSearch = document.getElementById('mobileSearchInput');
+      const clearBtn = document.getElementById('clearSearchBtn');
+
+      function onSearchChange(val) {
+        STATE.searchQuery = val.trim().toLowerCase();
+        if (STATE.searchQuery) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+        renderCurrentView();
+        updateFilterIndicators();
+      }
+
+      search.addEventListener('input', (e) => {
+        mSearch.value = e.target.value;
+        onSearchChange(e.target.value);
+      });
+
+      mSearch.addEventListener('input', (e) => {
+        search.value = e.target.value;
+        onSearchChange(e.target.value);
+      });
+
+      // Target Date auto detects Quarter
+      const dateInput = document.getElementById('taskDateInput');
+      const quarterInput = document.getElementById('taskQuarterInput');
+      dateInput.addEventListener('change', (e) => {
+        if (e.target.value) {
+          const m = new Date(e.target.value + 'T00:00:00').getMonth();
+          if (m <= 2) quarterInput.value = 'Q1';
+          else if (m <= 5) quarterInput.value = 'Q2';
+          else if (m <= 8) quarterInput.value = 'Q3';
+          else quarterInput.value = 'Q4';
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        const moreMenu = document.getElementById('moreMenuDropdown');
+        const moreBtn = document.getElementById('moreActionsBtn');
+        if (moreMenu && !moreMenu.contains(e.target) && !moreBtn.contains(e.target)) {
+          moreMenu.classList.add('hidden');
+        }
+      });
+
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const sidebar = document.getElementById('sidebar');
+      mobileMenuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+      });
+    }
+
+    // =========================================================================
+    // RISK ENGINE & DEADLINES (SLA)
+    // =========================================================================
+    function getTaskDeadlineStatus(task) {
+      if (task.status === 'done') {
+        return { status: 'done', label: 'Concluído', badgeClass: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50' };
+      }
+      if (!task.date) {
+        return { status: 'nodate', label: 'Sem Data', badgeClass: 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700' };
+      }
+
+      const taskDate = new Date(task.date + 'T00:00:00');
+      const diffMs = taskDate.getTime() - CONTEXT_TODAY.getTime();
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 0) {
+        return { 
+          status: 'overdue', 
+          days: Math.abs(diffDays), 
+          label: `Atrasada (${Math.abs(diffDays)}d)`, 
+          badgeClass: 'bg-rose-50 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800/60 font-bold' 
+        };
+      } else if (diffDays <= 7) {
+        return { 
+          status: 'warning', 
+          days: diffDays, 
+          label: diffDays === 0 ? 'Vence Hoje' : `Vence em ${diffDays}d`, 
+          badgeClass: 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/60 font-semibold' 
+        };
+      } else {
+        return { 
+          status: 'ontime', 
+          days: diffDays, 
+          label: 'No Prazo', 
+          badgeClass: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700' 
+        };
+      }
+    }
+
+    function toggleAttentionFilter() {
+      STATE.filterOnlyAttention = !STATE.filterOnlyAttention;
+      const btn = document.getElementById('attentionFilterBtn');
+      if (STATE.filterOnlyAttention) {
+        btn.classList.add('ring-2', 'ring-rose-500', 'bg-rose-100', 'dark:bg-rose-500/20');
+        showToast('Filtrando apenas atividades atrasadas ou que vencem em 7 dias.', 'warning');
+      } else {
+        btn.classList.remove('ring-2', 'ring-rose-500', 'bg-rose-100', 'dark:bg-rose-500/20');
+      }
+      renderCurrentView();
+      updateFilterIndicators();
+    }
+
+    // =========================================================================
+    // SUBTASKS (DoD) CALCULATION
+    // =========================================================================
+    function getTaskProgress(task) {
+      if (task.subtasks && task.subtasks.length > 0) {
+        const doneCount = task.subtasks.filter(st => st.done).length;
+        const total = task.subtasks.length;
+        const pct = Math.round((doneCount / total) * 100);
+        return { percent: pct, doneCount, total, hasSubtasks: true };
+      }
+      const pct = task.status === 'done' ? 100 : (task.status === 'in_progress' ? 50 : 0);
+      return { percent: pct, doneCount: 0, total: 0, hasSubtasks: false };
+    }
+
+    // =========================================================================
+    // NAVIGATION & 6 VIEW SWITCHER
+    // =========================================================================
+    function switchView(viewName) {
+      STATE.currentView = viewName;
+
+      const views = ['calendar', 'quarter', 'kanban', 'roadmap', 'eisenhower', 'analytics'];
+      
+      // Desktop Nav Pills
+      views.forEach(v => {
+        const btn = document.getElementById('viewBtn' + capitalize(v));
+        if (btn) {
+          if (v === viewName) {
+            btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-sm transition-all';
+          } else {
+            btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-900 transition-all';
+          }
+        }
+      });
+
+      // Mobile Nav Pills
+      views.forEach(v => {
+        const mBtn = document.getElementById('mViewBtn' + capitalize(v));
+        if (mBtn) {
+          if (v === viewName) {
+            mBtn.className = 'py-1 text-xs font-semibold rounded-md bg-indigo-600 text-white transition';
+          } else {
+            mBtn.className = 'py-1 text-xs font-semibold rounded-md text-slate-600 dark:text-slate-400 transition';
+          }
+        }
+      });
+
+      // Show/Hide Sections
+      views.forEach(v => {
+        const sec = document.getElementById('view' + capitalize(v));
+        if (sec) sec.classList.toggle('hidden', v !== viewName);
+      });
+
+      renderViewHeader();
+      renderCurrentView();
+      lucide.createIcons();
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function renderViewHeader() {
+      const header = document.getElementById('viewHeader');
+      
+      if (STATE.currentView === 'calendar') {
+        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        const currentMonthName = monthNames[STATE.currentMonth];
+        header.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1">
+              <button onclick="prevMonth()" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Mês Anterior">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+              </button>
+              <button onclick="nextMonth()" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Próximo Mês">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <span>${currentMonthName}</span>
+              <span class="text-indigo-600 dark:text-indigo-400 font-extrabold">${STATE.currentYear}</span>
+            </h2>
+            <button onclick="goToCurrentMonth()" class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">
+              Hoje
+            </button>
+          </div>
+          <div class="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Projetos</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Rotinas</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Capacitação</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Segurança</span>
+          </div>
+        `;
+      } else if (STATE.currentView === 'quarter') {
+        header.innerHTML = `
+          <div>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <i data-lucide="layout-grid" class="w-4 h-4 text-indigo-500"></i>
+              <span>Matriz Estratégica Trimestral</span>
+              <span class="text-indigo-600 dark:text-indigo-400 font-extrabold">${STATE.currentYear}</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Metas executivas de TI distribuídas em 4 trimestres com barras de entrega.</p>
+          </div>
+          <button onclick="openTaskModal(null, { cadence: 'quarterly', quarter: 'Q1' })" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add no Trimestre
+          </button>
+        `;
+      } else if (STATE.currentView === 'kanban') {
+        header.innerHTML = `
+          <div>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <i data-lucide="kanban" class="w-4 h-4 text-indigo-500"></i>
+              <span>Quadro Operacional de Status</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Arraste e solte os cards entre as colunas para atualizar o status instantaneamente.</p>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            <span class="flex items-center gap-1"><i data-lucide="move" class="w-3.5 h-3.5"></i> Suporta Drag & Drop</span>
+          </div>
+        `;
+      } else if (STATE.currentView === 'roadmap') {
+        header.innerHTML = `
+          <div>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <i data-lucide="git-commit" class="w-4 h-4 text-indigo-500"></i>
+              <span>Roadmap Executivo (Gantt de TI)</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Visão temporal contínua dos projetos e iniciativas ao longo do ano para reuniões de diretoria.</p>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            <span>Jan a Dez / 2026</span>
+          </div>
+        `;
+      } else if (STATE.currentView === 'eisenhower') {
+        header.innerHTML = `
+          <div>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <i data-lucide="crosshair" class="w-4 h-4 text-indigo-500"></i>
+              <span>Matriz de Decisão Eisenhower para TI</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Classificação inteligente do backlog por Impacto no Negócio vs. Urgência de Entrega.</p>
+          </div>
+          <button onclick="openTaskModal()" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nova Tarefa
+          </button>
+        `;
+      } else if (STATE.currentView === 'analytics') {
+        header.innerHTML = `
+          <div>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-500"></i>
+              <span>Dashboard de Analytics & Governança de TI</span>
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Métricas consolidadas de esforço por squad, conformidade de prazos e taxa de DoD.</p>
+          </div>
+          <button onclick="exportDataCSV()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar CSV
+          </button>
+        `;
+      }
+    }
+
+    function prevMonth() {
+      STATE.currentMonth--;
+      if (STATE.currentMonth < 0) {
+        STATE.currentMonth = 11;
+        STATE.currentYear--;
+      }
+      renderViewHeader();
+      renderCalendar();
+      lucide.createIcons();
+    }
+
+    function nextMonth() {
+      STATE.currentMonth++;
+      if (STATE.currentMonth > 11) {
+        STATE.currentMonth = 0;
+        STATE.currentYear++;
+      }
+      renderViewHeader();
+      renderCalendar();
+      lucide.createIcons();
+    }
+
+    function goToCurrentMonth() {
+      STATE.currentYear = 2026;
+      STATE.currentMonth = 8;
+      renderViewHeader();
+      renderCalendar();
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // FILTERING & SEARCH LOGIC
+    // =========================================================================
+    function getFilteredTasks() {
+      return STATE.tasks.filter(task => {
+        // Cadence Filter
+        if (STATE.activeCadence !== 'all' && task.cadence !== STATE.activeCadence) {
+          return false;
+        }
+
+        // Category Filter
+        if (STATE.activeCategory !== 'all' && task.category !== STATE.activeCategory) {
+          return false;
+        }
+
+        // Status Filter
+        if (STATE.activeStatus !== 'all' && task.status !== STATE.activeStatus) {
+          return false;
+        }
+
+        // Tag Filter
+        if (STATE.activeTag !== 'all' && (!task.tags || !task.tags.includes(STATE.activeTag))) {
+          return false;
+        }
+
+        // Risk / Attention Filter
+        if (STATE.filterOnlyAttention) {
+          const dead = getTaskDeadlineStatus(task);
+          if (dead.status !== 'overdue' && dead.status !== 'warning') {
+            return false;
+          }
+        }
+
+        // Search Query
+        if (STATE.searchQuery) {
+          const matchTitle = (task.title || '').toLowerCase().includes(STATE.searchQuery);
+          const matchDesc = (task.description || '').toLowerCase().includes(STATE.searchQuery);
+          const matchSquad = (task.squad || '').toLowerCase().includes(STATE.searchQuery);
+          const matchTags = (task.tags || []).some(t => t.toLowerCase().includes(STATE.searchQuery));
+          if (!matchTitle && !matchDesc && !matchSquad && !matchTags) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+    }
+
+    function setCadenceFilter(cadence) {
+      STATE.activeCadence = cadence;
+      renderSidebarFilters();
+      renderCurrentView();
+    }
+
+    function setCategoryFilter(category) {
+      STATE.activeCategory = category;
+      renderSidebarFilters();
+      renderCurrentView();
+    }
+
+    function setStatusFilter(status) {
+      STATE.activeStatus = status;
+      renderSidebarFilters();
+      renderCurrentView();
+    }
+
+    function setTagFilter(tag) {
+      STATE.activeTag = (STATE.activeTag === tag) ? 'all' : tag;
+      renderSidebarFilters();
+      renderCurrentView();
+    }
+
+    function resetFilters() {
+      STATE.activeCadence = 'all';
+      STATE.activeCategory = 'all';
+      STATE.activeStatus = 'all';
+      STATE.activeTag = 'all';
+      STATE.filterOnlyAttention = false;
+      document.getElementById('attentionFilterBtn').classList.remove('ring-2', 'ring-rose-500', 'bg-rose-100', 'dark:bg-rose-500/20');
+      clearSearch();
+      renderSidebarFilters();
+      renderCurrentView();
+      showToast('Filtros redefinidos.', 'info');
+    }
+
+    function clearSearch() {
+      STATE.searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('mobileSearchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderCurrentView();
+      updateFilterIndicators();
+    }
+
+    function updateFilterIndicators() {
+      const isFiltered = STATE.activeCadence !== 'all' || 
+                         STATE.activeCategory !== 'all' || 
+                         STATE.activeStatus !== 'all' || 
+                         STATE.activeTag !== 'all' ||
+                         STATE.filterOnlyAttention ||
+                         STATE.searchQuery !== '';
+      document.getElementById('clearFiltersBtn').classList.toggle('hidden', !isFiltered);
+    }
+
+    // =========================================================================
+    // SIDEBAR FILTERS & KPI METRICS
+    // =========================================================================
+    function renderSidebarFilters() {
+      // Attention count
+      const attentionCount = STATE.tasks.filter(t => {
+        const s = getTaskDeadlineStatus(t).status;
+        return s === 'overdue' || s === 'warning';
+      }).length;
+      document.getElementById('attentionCountBadge').textContent = attentionCount;
+
+      // Render Cadence options
+      const cadenceList = document.getElementById('cadenceFilterList');
+      const cadenceCounts = {
+        all: STATE.tasks.length,
+        daily_weekly: STATE.tasks.filter(t => t.cadence === 'daily_weekly').length,
+        monthly: STATE.tasks.filter(t => t.cadence === 'monthly').length,
+        quarterly: STATE.tasks.filter(t => t.cadence === 'quarterly').length,
+        annual: STATE.tasks.filter(t => t.cadence === 'annual').length
+      };
+
+      let cadenceHtml = `
+        <button onclick="setCadenceFilter('all')" class="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-medium transition ${STATE.activeCadence === 'all' ? 'bg-indigo-50 dark:bg-indigo-600/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'}">
+          <span class="flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4"></i> Todas as Cadências
+          </span>
+          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800/80">${cadenceCounts.all}</span>
+        </button>
+      `;
+
+      for (const [key, item] of Object.entries(CADENCES)) {
+        const isActive = STATE.activeCadence === key;
+        cadenceHtml += `
+          <button onclick="setCadenceFilter('${key}')" class="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-medium transition ${isActive ? 'bg-indigo-50 dark:bg-indigo-600/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'}">
+            <span class="flex items-center gap-2">
+              <i data-lucide="${item.icon}" class="w-4 h-4 ${item.color}"></i> ${item.name}
+            </span>
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800/80">${cadenceCounts[key] || 0}</span>
+          </button>
+        `;
+      }
+      cadenceList.innerHTML = cadenceHtml;
+
+      // Render Categories
+      const categoryList = document.getElementById('categoryFilterList');
+      let catHtml = `
+        <button onclick="setCategoryFilter('all')" class="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-medium transition ${STATE.activeCategory === 'all' ? 'bg-indigo-50 dark:bg-indigo-600/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'}">
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-slate-400"></span> Todas as Categorias
+          </span>
+          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800/80">${STATE.tasks.length}</span>
+        </button>
+      `;
+
+      for (const [key, item] of Object.entries(CATEGORIES)) {
+        const count = STATE.tasks.filter(t => t.category === key).length;
+        const isActive = STATE.activeCategory === key;
+        catHtml += `
+          <button onclick="setCategoryFilter('${key}')" class="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-medium transition ${isActive ? 'bg-indigo-50 dark:bg-indigo-600/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'}">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full" style="background-color: ${item.dotColor}"></span> ${item.prefix} ${item.name}
+            </span>
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800/80">${count}</span>
+          </button>
+        `;
+      }
+      categoryList.innerHTML = catHtml;
+
+      // Extract all unique tags
+      const allTags = new Set();
+      STATE.tasks.forEach(t => {
+        if (t.tags && Array.isArray(t.tags)) {
+          t.tags.forEach(tag => allTags.add(tag));
+        }
+      });
+      const tagChipsContainer = document.getElementById('tagFilterChips');
+      if (allTags.size === 0) {
+        tagChipsContainer.innerHTML = '<span class="text-[10px] text-slate-400">Nenhuma tag cadastrada.</span>';
+      } else {
+        tagChipsContainer.innerHTML = Array.from(allTags).map(tag => {
+          const isSelected = STATE.activeTag === tag;
+          return `
+            <button 
+              onclick="setTagFilter('${tag}')" 
+              class="px-2 py-0.5 rounded-md text-[10px] font-semibold transition border ${isSelected ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white'}"
+            >
+              ${tag}
+            </button>
+          `;
+        }).join('');
+      }
+
+      // Status pills
+      const statusGrid = document.getElementById('statusFilterGrid');
+      statusGrid.innerHTML = `
+        <button onclick="setStatusFilter('all')" class="px-2 py-1.5 rounded-lg text-center text-xs font-semibold transition ${STATE.activeStatus === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800/70 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}">
+          Todos
+        </button>
+        <button onclick="setStatusFilter('in_progress')" class="px-2 py-1.5 rounded-lg text-center text-xs font-semibold transition ${STATE.activeStatus === 'in_progress' ? 'bg-cyan-600 text-white' : 'bg-slate-100 dark:bg-slate-800/70 text-cyan-600 dark:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800'}">
+          Em Curso
+        </button>
+        <button onclick="setStatusFilter('done')" class="px-2 py-1.5 rounded-lg text-center text-xs font-semibold transition ${STATE.activeStatus === 'done' ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-800/70 text-emerald-600 dark:text-emerald-400 hover:bg-slate-200 dark:hover:bg-slate-800'}">
+          Concluído
+        </button>
+      `;
+
+      updateFilterIndicators();
+      lucide.createIcons();
+    }
+
+    function updateMetrics() {
+      const total = STATE.tasks.length;
+      const done = STATE.tasks.filter(t => t.status === 'done').length;
+      const inProgress = STATE.tasks.filter(t => t.status === 'in_progress').length;
+      const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+
+      document.getElementById('metricTotal').textContent = total;
+      document.getElementById('metricInProgress').textContent = inProgress;
+      document.getElementById('metricDone').textContent = done;
+      document.getElementById('overallPercentageBadge').textContent = `${percent}% Concluído`;
+      document.getElementById('annualProgressBar').style.width = `${percent}%`;
+
+      renderSidebarFilters();
+    }
+
+    // =========================================================================
+    // VIEW RENDERERS
+    // =========================================================================
+    function renderApp() {
+      renderViewHeader();
+      updateMetrics();
+      renderCurrentView();
+    }
+
+    function renderCurrentView() {
+      if (STATE.currentView === 'calendar') renderCalendar();
+      else if (STATE.currentView === 'quarter') renderQuarterMatrix();
+      else if (STATE.currentView === 'kanban') renderKanban();
+      else if (STATE.currentView === 'roadmap') renderRoadmap();
+      else if (STATE.currentView === 'eisenhower') renderEisenhower();
+      else if (STATE.currentView === 'analytics') renderAnalytics();
+
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------------------
+    // 1. CALENDAR VIEW
+    // -------------------------------------------------------------------------
+    function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      const year = STATE.currentYear;
+      const month = STATE.currentMonth;
+
+      const firstDayOfMonth = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevMonthDays = new Date(year, month, 0).getDate();
+
+      const filteredTasks = getFilteredTasks();
+      const isCurrentMonth = CONTEXT_TODAY.getFullYear() === year && CONTEXT_TODAY.getMonth() === month;
+      const todayDate = CONTEXT_TODAY.getDate();
+
+      let html = '';
+
+      for (let i = firstDayOfMonth - 1; i >= 0; i--) {
+        const d = prevMonthDays - i;
+        html += `
+          <div class="min-h-[105px] sm:min-h-[115px] p-2 bg-slate-100/40 dark:bg-slate-950/40 text-slate-400 select-none flex flex-col justify-between">
+            <span class="text-xs font-semibold">${d}</span>
+          </div>
+        `;
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const dayTasks = filteredTasks.filter(t => t.date === dateString);
+        const isToday = isCurrentMonth && d === todayDate;
+
+        html += `
+          <div 
+            class="min-h-[105px] sm:min-h-[115px] p-2 bg-white dark:bg-slate-900/30 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition flex flex-col justify-between group relative cursor-pointer"
+            onclick="handleDayCellClick('${dateString}')"
+          >
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-bold rounded-md px-1.5 py-0.5 ${isToday ? 'bg-indigo-600 text-white ring-2 ring-indigo-400' : 'text-slate-700 dark:text-slate-300 group-hover:text-indigo-600'}">
+                ${d}
+              </span>
+              <button 
+                onclick="event.stopPropagation(); openTaskModal(null, { date: '${dateString}' })" 
+                class="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                title="Adicionar atividade nesta data"
+              >
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+            <div class="space-y-1 overflow-y-auto max-h-[85px] pr-0.5 flex-1">
+              ${dayTasks.map(t => {
+                const cat = CATEGORIES[t.category] || CATEGORIES.projects;
+                const isDone = t.status === 'done';
+                const dead = getTaskDeadlineStatus(t);
+                return `
+                  <div 
+                    onclick="event.stopPropagation(); viewTaskDetail('${t.id}')"
+                    class="text-[11px] font-medium p-1 rounded-lg border flex items-center justify-between gap-1 transition truncate shadow-xs hover:brightness-105 ${cat.badgeClass} ${isDone ? 'opacity-50 line-through' : ''}"
+                    title="${t.title} (${cat.name})"
+                  >
+                    <div class="flex items-center gap-1.5 truncate">
+                      <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background-color: ${cat.dotColor}"></span>
+                      <span class="truncate">${t.title}</span>
+                    </div>
+                    ${dead.status === 'overdue' ? `<span class="w-2 h-2 rounded-full bg-rose-500 shrink-0" title="Atrasada"></span>` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            ${dayTasks.length === 0 ? `<div class="text-[10px] text-slate-400 dark:text-slate-600 hidden sm:block pointer-events-none mt-auto">Livre</div>` : ''}
+          </div>
+        `;
+      }
+
+      const totalRendered = firstDayOfMonth + daysInMonth;
+      const remainingCells = (totalRendered <= 35 ? 35 : 42) - totalRendered;
+      for (let i = 1; i <= remainingCells; i++) {
+        html += `
+          <div class="min-h-[105px] sm:min-h-[115px] p-2 bg-slate-100/40 dark:bg-slate-950/40 text-slate-400 select-none flex flex-col justify-between">
+            <span class="text-xs font-semibold">${i}</span>
+          </div>
+        `;
+      }
+
+      grid.innerHTML = html;
+    }
+
+    function handleDayCellClick(dateString) {
+      const filtered = getFilteredTasks().filter(t => t.date === dateString);
+      if (filtered.length === 1) {
+        viewTaskDetail(filtered[0].id);
+      } else {
+        openTaskModal(null, { date: dateString });
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. QUARTER MATRIX VIEW (Q1 - Q4)
+    // -------------------------------------------------------------------------
+    function renderQuarterMatrix() {
+      const quarters = [
+        { id: 'Q1', name: 'Q1 - 1º Trimestre', subtitle: 'Janeiro a Março', colId: 'colQ1', bgBadge: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/30' },
+        { id: 'Q2', name: 'Q2 - 2º Trimestre', subtitle: 'Abril a Junho', colId: 'colQ2', bgBadge: 'bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-500/30' },
+        { id: 'Q3', name: 'Q3 - 3º Trimestre', subtitle: 'Julho a Setembro', colId: 'colQ3', bgBadge: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' },
+        { id: 'Q4', name: 'Q4 - 4º Trimestre', subtitle: 'Outubro a Dezembro', colId: 'colQ4', bgBadge: 'bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-500/30' },
+      ];
+
+      const filteredTasks = getFilteredTasks();
+
+      quarters.forEach(q => {
+        const col = document.getElementById(q.colId);
+        const qTasks = filteredTasks.filter(t => t.quarter === q.id);
+        const doneCount = qTasks.filter(t => t.status === 'done').length;
+        const totalCount = qTasks.length;
+        const percent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+
+        col.innerHTML = `
+          <div class="pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full border ${q.bgBadge}">${q.id}</span>
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">${percent}%</span>
+            </div>
+            <h3 class="font-bold text-sm text-slate-900 dark:text-white">${q.name}</h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">${q.subtitle}</p>
+            <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-1.5 mt-2 border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <div class="h-full bg-indigo-500 rounded-full transition-all duration-300" style="width: ${percent}%"></div>
+            </div>
+          </div>
+
+          <div class="space-y-2.5 flex-1 overflow-y-auto pr-1">
+            ${qTasks.length === 0 ? `
+              <div class="h-32 flex flex-col items-center justify-center text-center p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400">
+                <i data-lucide="inbox" class="w-6 h-6 mb-1 opacity-40"></i>
+                <span class="text-xs">Sem atividades no ${q.id}</span>
+              </div>
+            ` : qTasks.map(t => renderTaskCard(t)).join('')}
+          </div>
+
+          <div class="pt-3 mt-2 border-t border-slate-200 dark:border-slate-800/80">
+            <button 
+              onclick="openTaskModal(null, { quarter: '${q.id}', cadence: 'quarterly' })" 
+              class="w-full py-2 rounded-xl bg-slate-50 dark:bg-slate-950/60 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 transition flex items-center justify-center gap-1.5"
+            >
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>Adicionar no ${q.id}</span>
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. KANBAN VIEW (With HTML5 Drag and Drop)
+    // -------------------------------------------------------------------------
+    function renderKanban() {
+      const filteredTasks = getFilteredTasks();
+      const todoTasks = filteredTasks.filter(t => t.status === 'todo');
+      const inProgressTasks = filteredTasks.filter(t => t.status === 'in_progress');
+      const doneTasks = filteredTasks.filter(t => t.status === 'done');
+
+      document.getElementById('kanbanCountTodo').textContent = todoTasks.length;
+      document.getElementById('kanbanCountInProgress').textContent = inProgressTasks.length;
+      document.getElementById('kanbanCountDone').textContent = doneTasks.length;
+
+      document.getElementById('kanbanColTodo').innerHTML = todoTasks.length > 0 
+        ? todoTasks.map(t => renderTaskCard(t, true)).join('')
+        : renderEmptyColumn('Arraste ou crie uma tarefa aqui.');
+
+      document.getElementById('kanbanColInProgress').innerHTML = inProgressTasks.length > 0 
+        ? inProgressTasks.map(t => renderTaskCard(t, true)).join('')
+        : renderEmptyColumn('Nenhuma tarefa em andamento.');
+
+      document.getElementById('kanbanColDone').innerHTML = doneTasks.length > 0 
+        ? doneTasks.map(t => renderTaskCard(t, true)).join('')
+        : renderEmptyColumn('Nenhuma tarefa concluída ainda.');
+    }
+
+    function renderEmptyColumn(message) {
+      return `
+        <div class="h-32 flex flex-col items-center justify-center text-center p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400">
+          <i data-lucide="clipboard-list" class="w-6 h-6 mb-1 opacity-30"></i>
+          <span class="text-xs">${message}</span>
+        </div>
+      `;
+    }
+
+    // Drag and Drop Event Handlers
+    function handleDragStart(event, taskId) {
+      STATE.draggedTaskId = taskId;
+      event.dataTransfer.setData('text/plain', taskId);
+      event.currentTarget.classList.add('dragging');
+    }
+
+    function handleDragEnd(event) {
+      event.currentTarget.classList.remove('dragging');
+      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      STATE.draggedTaskId = null;
+    }
+
+    function handleDragOver(event) {
+      event.preventDefault();
+      event.currentTarget.classList.add('drag-over');
+    }
+
+    function handleDragLeave(event) {
+      event.currentTarget.classList.remove('drag-over');
+    }
+
+    function handleDrop(event, newStatus) {
+      event.preventDefault();
+      event.currentTarget.classList.remove('drag-over');
+      const taskId = event.dataTransfer.getData('text/plain') || STATE.draggedTaskId;
+      if (!taskId) return;
+
+      const task = STATE.tasks.find(t => t.id === taskId);
+      if (task && task.status !== newStatus) {
+        task.status = newStatus;
+        saveTasksToStorage();
+        renderApp();
+        showToast(`Tarefa movida para: ${STATUSES[newStatus].name}`, 'info');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. ROADMAP / GANTT EXECUTIVO VIEW
+    // -------------------------------------------------------------------------
+    function renderRoadmap() {
+      const container = document.getElementById('roadmapBarsContainer');
+      const filteredTasks = getFilteredTasks();
+
+      if (filteredTasks.length === 0) {
+        container.innerHTML = `
+          <div class="py-12 text-center text-slate-400">
+            <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
+            <p class="text-xs">Nenhuma atividade no roadmap com os filtros atuais.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Group tasks by category
+      const categoriesOrder = ['projects', 'security', 'indicators', 'routines', 'training'];
+      let html = '';
+
+      categoriesOrder.forEach(catKey => {
+        const catTasks = filteredTasks.filter(t => t.category === catKey);
+        if (catTasks.length === 0) return;
+
+        const cat = CATEGORIES[catKey];
+        html += `
+          <div class="pt-2 pb-1">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-2 h-2 rounded-full" style="background-color: ${cat.dotColor}"></span>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">${cat.prefix} ${cat.name} (${catTasks.length})</span>
+            </div>
+            <div class="space-y-2">
+        `;
+
+        catTasks.forEach(task => {
+          // Calculate start and end month column (1 to 12)
+          let startMonth = 1;
+          let spanMonths = 2;
+
+          if (task.date) {
+            const m = new Date(task.date + 'T00:00:00').getMonth() + 1; // 1-12
+            startMonth = Math.max(1, m - 1);
+            spanMonths = 2;
+          } else if (task.quarter === 'Q1') { startMonth = 1; spanMonths = 3; }
+          else if (task.quarter === 'Q2') { startMonth = 4; spanMonths = 3; }
+          else if (task.quarter === 'Q3') { startMonth = 7; spanMonths = 3; }
+          else if (task.quarter === 'Q4') { startMonth = 10; spanMonths = 3; }
+
+          const progress = getTaskProgress(task);
+          const isDone = task.status === 'done';
+
+          html += `
+            <div class="grid grid-cols-12 gap-1 items-center hover:bg-slate-100/50 dark:hover:bg-slate-800/30 p-1 rounded-xl transition cursor-pointer" onclick="viewTaskDetail('${task.id}')">
+              <div 
+                class="col-span-${spanMonths} col-start-${startMonth} relative group"
+                style="grid-column-start: ${startMonth}; grid-column-end: span ${spanMonths};"
+              >
+                <div class="h-8 rounded-xl border flex items-center px-2.5 justify-between shadow-xs overflow-hidden relative ${cat.badgeClass}">
+                  <!-- Fill bar -->
+                  <div class="absolute left-0 top-0 bottom-0 bg-indigo-500/20 rounded-l-xl" style="width: ${progress.percent}%"></div>
+                  
+                  <span class="text-[11px] font-bold truncate z-10 text-slate-900 dark:text-white">${task.title}</span>
+                  <span class="text-[10px] font-mono font-bold z-10 ml-2 shrink-0 ${isDone ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}">
+                    ${progress.percent}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. MATRIZ EISENHOWER (IMPACTO X URGÊNCIA)
+    // -------------------------------------------------------------------------
+    function renderEisenhower() {
+      const filteredTasks = getFilteredTasks();
+
+      // Q1: High Impact + High Urgency (Foco Imediato)
+      const q1Tasks = filteredTasks.filter(t => (t.impact === 'high' || t.priority === 'critical') && (t.urgency === 'high' || t.priority === 'critical' || t.priority === 'high'));
+      // Q2: High Impact + Low Urgency (Estratégico)
+      const q2Tasks = filteredTasks.filter(t => (t.impact === 'high' || t.priority === 'critical') && !(t.urgency === 'high' || t.priority === 'critical' || t.priority === 'high'));
+      // Q3: Low Impact + High Urgency (Sustentação)
+      const q3Tasks = filteredTasks.filter(t => !(t.impact === 'high' || t.priority === 'critical') && (t.urgency === 'high' || t.priority === 'high'));
+      // Q4: Low Impact + Low Urgency (Backlog)
+      const q4Tasks = filteredTasks.filter(t => !(t.impact === 'high' || t.priority === 'critical') && !(t.urgency === 'high' || t.priority === 'high'));
+
+      document.getElementById('countEisenhowerQ1').textContent = q1Tasks.length;
+      document.getElementById('countEisenhowerQ2').textContent = q2Tasks.length;
+      document.getElementById('countEisenhowerQ3').textContent = q3Tasks.length;
+      document.getElementById('countEisenhowerQ4').textContent = q4Tasks.length;
+
+      document.getElementById('eisenhowerColQ1').innerHTML = q1Tasks.map(t => renderTaskCard(t)).join('') || '<span class="text-xs text-slate-400">Nenhuma tarefa crítica imediata.</span>';
+      document.getElementById('eisenhowerColQ2').innerHTML = q2Tasks.map(t => renderTaskCard(t)).join('') || '<span class="text-xs text-slate-400">Nenhum projeto estratégico longo.</span>';
+      document.getElementById('eisenhowerColQ3').innerHTML = q3Tasks.map(t => renderTaskCard(t)).join('') || '<span class="text-xs text-slate-400">Nenhuma rotina urgente no momento.</span>';
+      document.getElementById('eisenhowerColQ4').innerHTML = q4Tasks.map(t => renderTaskCard(t)).join('') || '<span class="text-xs text-slate-400">Backlog secundário vazio.</span>';
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. ANALYTICS & DASHBOARD DE SAÚDE TI
+    // -------------------------------------------------------------------------
+    function renderAnalytics() {
+      const tasks = STATE.tasks;
+      const total = tasks.length;
+      const done = tasks.filter(t => t.status === 'done').length;
+
+      let overdueCount = 0;
+      let onTimeCount = 0;
+      let totalDoD = 0;
+      let doneDoD = 0;
+
+      tasks.forEach(t => {
+        const dead = getTaskDeadlineStatus(t);
+        if (dead.status === 'overdue') overdueCount++;
+        else if (dead.status === 'ontime' || dead.status === 'done') onTimeCount++;
+
+        if (t.subtasks && Array.isArray(t.subtasks)) {
+          totalDoD += t.subtasks.length;
+          doneDoD += t.subtasks.filter(st => st.done).length;
+        }
+      });
+
+      // Health Score Calculation (0-100%)
+      // Penalized by overdue tasks, rewarded by done tasks and on-time SLA
+      let score = 100;
+      if (total > 0) {
+        const overduePenalty = (overdueCount / total) * 60;
+        const inProgressWithoutSubtasksPenalty = (tasks.filter(t => t.status === 'in_progress').length / total) * 10;
+        score = Math.max(20, Math.round(100 - overduePenalty));
+      }
+
+      document.getElementById('analyticsHealthScore').textContent = `${score}%`;
+      const subtitle = document.getElementById('analyticsHealthSubtitle');
+      if (score >= 80) {
+        subtitle.textContent = 'Operação de TI Saudável';
+        subtitle.className = 'text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold';
+      } else if (score >= 60) {
+        subtitle.textContent = 'Atenção aos Prazos';
+        subtitle.className = 'text-[10px] text-amber-600 dark:text-amber-400 font-semibold';
+      } else {
+        subtitle.textContent = 'Risco Crítico de Atrasos';
+        subtitle.className = 'text-[10px] text-rose-600 dark:text-rose-400 font-semibold';
+      }
+
+      document.getElementById('analyticsOnTimeCount').textContent = onTimeCount;
+      document.getElementById('analyticsOverdueCount').textContent = overdueCount;
+      document.getElementById('analyticsDodRatio').textContent = `${doneDoD}/${totalDoD}`;
+      const dodPct = totalDoD > 0 ? Math.round((doneDoD / totalDoD) * 100) : 0;
+      document.getElementById('analyticsDodPercent').textContent = `${dodPct}% dos critérios atingidos`;
+
+      // Squad Chart
+      const squadCounts = {};
+      tasks.forEach(t => {
+        const squad = t.squad || 'Geral';
+        squadCounts[squad] = (squadCounts[squad] || 0) + 1;
+      });
+
+      const squadChart = document.getElementById('analyticsSquadChart');
+      squadChart.innerHTML = Object.entries(squadCounts).map(([squad, count]) => {
+        const pct = Math.round((count / total) * 100);
+        return `
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-bold text-slate-800 dark:text-slate-200">${squad}</span>
+              <span class="font-semibold text-slate-500">${count} tarefas (${pct}%)</span>
+            </div>
+            <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-200 dark:border-slate-800">
+              <div class="h-full bg-indigo-500 rounded-full" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Category Breakdown Chart
+      const catChart = document.getElementById('analyticsCategoryChart');
+      catChart.innerHTML = Object.entries(CATEGORIES).map(([catKey, cat]) => {
+        const catTasks = tasks.filter(t => t.category === catKey);
+        const catDone = catTasks.filter(t => t.status === 'done').length;
+        const pct = catTasks.length > 0 ? Math.round((catDone / catTasks.length) * 100) : 0;
+        return `
+          <div class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+            <div class="flex items-center justify-between text-xs mb-1.5">
+              <span class="font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                <span>${cat.prefix}</span> ${cat.name}
+              </span>
+              <span class="text-[11px] font-semibold text-slate-500">
+                ${catDone}/${catTasks.length} concluídos (${pct}%)
+              </span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+              <div class="h-full rounded-full transition-all" style="width: ${pct}%; background-color: ${cat.dotColor}"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // -------------------------------------------------------------------------
+    // REUSABLE TASK CARD RENDERER (With Drag & Drop, DoD & Risk Badge)
+    // -------------------------------------------------------------------------
+    function renderTaskCard(t, draggable = true) {
+      const cat = CATEGORIES[t.category] || CATEGORIES.projects;
+      const cadence = CADENCES[t.cadence] || CADENCES.monthly;
+      const prio = PRIORITIES[t.priority] || PRIORITIES.medium;
+      const dead = getTaskDeadlineStatus(t);
+      const prog = getTaskProgress(t);
+      const isDone = t.status === 'done';
+
+      return `
+        <div 
+          ${draggable ? `draggable="true" ondragstart="handleDragStart(event, '${t.id}')" ondragend="handleDragEnd(event)"` : ''}
+          onclick="viewTaskDetail('${t.id}')"
+          class="p-3 rounded-xl bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80 hover:border-indigo-500/50 hover:bg-slate-50 dark:hover:bg-slate-900 transition shadow-xs group cursor-pointer relative ${isDone ? 'opacity-65' : ''}"
+        >
+          <!-- Top Badges -->
+          <div class="flex items-center justify-between gap-1.5 mb-2">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${cat.badgeClass}">
+              ${cat.prefix} ${cat.name}
+            </span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full border ${dead.badgeClass}">
+              ${dead.label}
+            </span>
+          </div>
+
+          <!-- Title -->
+          <h4 class="text-xs font-bold text-slate-900 dark:text-white mb-1.5 leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition ${isDone ? 'line-through text-slate-400' : ''}">
+            ${t.title}
+          </h4>
+
+          <!-- Subtasks Progress Bar if has DoD -->
+          ${prog.hasSubtasks ? `
+            <div class="mb-2">
+              <div class="flex items-center justify-between text-[10px] text-slate-500 mb-0.5">
+                <span>DoD: ${prog.doneCount}/${prog.total}</span>
+                <span>${prog.percent}%</span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden">
+                <div class="h-full bg-emerald-500 rounded-full" style="width: ${prog.percent}%"></div>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Tags -->
+          ${t.tags && t.tags.length > 0 ? `
+            <div class="flex flex-wrap gap-1 mb-2">
+              ${t.tags.slice(0, 3).map(tag => `
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                  ${tag}
+                </span>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <!-- Footer (Cadence, Squad, Actions) -->
+          <div class="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+            <span class="flex items-center gap-1 font-medium ${cadence.color}">
+              <i data-lucide="${cadence.icon}" class="w-3 h-3"></i>
+              <span>${cadence.name.split(' ')[0]}</span>
+            </span>
+
+            <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+              <button 
+                onclick="cycleTaskStatus('${t.id}')" 
+                class="p-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" 
+                title="Avançar status"
+              >
+                <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+              </button>
+              <button 
+                onclick="openTaskModal('${t.id}')" 
+                class="p-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" 
+                title="Editar"
+              >
+                <i data-lucide="edit-2" class="w-3 h-3"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // TASK CRUD OPERATIONS & SUBTASKS BUILDER
+    // =========================================================================
+    function openTaskModal(taskId = null, defaultValues = {}) {
+      const modal = document.getElementById('taskModal');
+      const form = document.getElementById('taskForm');
+      const deleteBtn = document.getElementById('deleteTaskBtn');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalIcon = document.getElementById('modalIcon');
+
+      form.reset();
+      document.getElementById('taskId').value = '';
+      STATE.currentEditingSubtasks = [];
+
+      if (taskId) {
+        const task = STATE.tasks.find(t => t.id === taskId);
+        if (task) {
+          modalTitle.textContent = 'Editar Atividade de TI';
+          modalIcon.setAttribute('data-lucide', 'edit-3');
+          deleteBtn.classList.remove('hidden');
+
+          document.getElementById('taskId').value = task.id;
+          document.getElementById('taskTitleInput').value = task.title;
+          document.getElementById('taskCadenceInput').value = task.cadence;
+          document.getElementById('taskCategoryInput').value = task.category;
+          document.getElementById('taskStatusInput').value = task.status;
+          document.getElementById('taskPriorityInput').value = task.priority;
+          document.getElementById('taskDateInput').value = task.date || '';
+          document.getElementById('taskQuarterInput').value = task.quarter || 'Q1';
+          document.getElementById('taskSquadInput').value = task.squad || '';
+          document.getElementById('taskTagsInput').value = (task.tags || []).join(', ');
+          document.getElementById('taskImpactInput').value = task.impact || 'high';
+          document.getElementById('taskUrgencyInput').value = task.urgency || 'high';
+          document.getElementById('taskDescriptionInput').value = task.description || '';
+
+          STATE.currentEditingSubtasks = task.subtasks ? JSON.parse(JSON.stringify(task.subtasks)) : [];
+        }
+      } else {
+        modalTitle.textContent = 'Nova Atividade de TI';
+        modalIcon.setAttribute('data-lucide', 'plus');
+        deleteBtn.classList.add('hidden');
+
+        if (defaultValues.date) {
+          document.getElementById('taskDateInput').value = defaultValues.date;
+          const m = new Date(defaultValues.date + 'T00:00:00').getMonth();
+          if (m <= 2) document.getElementById('taskQuarterInput').value = 'Q1';
+          else if (m <= 5) document.getElementById('taskQuarterInput').value = 'Q2';
+          else if (m <= 8) document.getElementById('taskQuarterInput').value = 'Q3';
+          else document.getElementById('taskQuarterInput').value = 'Q4';
+        } else {
+          document.getElementById('taskDateInput').value = '2026-09-21';
+        }
+
+        if (defaultValues.cadence) document.getElementById('taskCadenceInput').value = defaultValues.cadence;
+        if (defaultValues.quarter) document.getElementById('taskQuarterInput').value = defaultValues.quarter;
+      }
+
+      renderSubtasksInModal();
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeTaskModal() {
+      document.getElementById('taskModal').classList.add('hidden');
+    }
+
+    function renderSubtasksInModal() {
+      const list = document.getElementById('subtasksModalList');
+      if (STATE.currentEditingSubtasks.length === 0) {
+        list.innerHTML = '<span class="text-xs text-slate-400">Nenhum critério adicionado ainda.</span>';
+        return;
+      }
+
+      list.innerHTML = STATE.currentEditingSubtasks.map((st, idx) => `
+        <div class="flex items-center justify-between p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
+          <label class="flex items-center gap-2 cursor-pointer truncate">
+            <input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleEditingSubtask(${idx})" class="rounded text-indigo-600 focus:ring-indigo-500">
+            <span class="${st.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-200'} truncate">${st.text}</span>
+          </label>
+          <button type="button" onclick="removeEditingSubtask(${idx})" class="text-slate-400 hover:text-rose-500 p-1">
+            <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function addSubtaskFromInput() {
+      const input = document.getElementById('newSubtaskInput');
+      const text = input.value.trim();
+      if (!text) return;
+      STATE.currentEditingSubtasks.push({
+        id: 'st-' + Date.now() + Math.random().toString(36).substr(2, 4),
+        text: text,
+        done: false
+      });
+      input.value = '';
+      renderSubtasksInModal();
+    }
+
+    function toggleEditingSubtask(idx) {
+      if (STATE.currentEditingSubtasks[idx]) {
+        STATE.currentEditingSubtasks[idx].done = !STATE.currentEditingSubtasks[idx].done;
+        renderSubtasksInModal();
+      }
+    }
+
+    function removeEditingSubtask(idx) {
+      STATE.currentEditingSubtasks.splice(idx, 1);
+      renderSubtasksInModal();
+    }
+
+    function handleTaskFormSubmit(e) {
+      e.preventDefault();
+
+      const taskId = document.getElementById('taskId').value;
+      const title = document.getElementById('taskTitleInput').value.trim();
+      const cadence = document.getElementById('taskCadenceInput').value;
+      const category = document.getElementById('taskCategoryInput').value;
+      const status = document.getElementById('taskStatusInput').value;
+      const priority = document.getElementById('taskPriorityInput').value;
+      const date = document.getElementById('taskDateInput').value;
+      const quarter = document.getElementById('taskQuarterInput').value;
+      const squad = document.getElementById('taskSquadInput').value.trim();
+      const description = document.getElementById('taskDescriptionInput').value.trim();
+      const impact = document.getElementById('taskImpactInput').value;
+      const urgency = document.getElementById('taskUrgencyInput').value;
+      
+      const rawTags = document.getElementById('taskTagsInput').value;
+      const tags = rawTags.split(',').map(t => t.trim()).filter(t => t.length > 0).map(t => t.startsWith('#') ? t : '#' + t);
+
+      if (!title) {
+        showToast('Por favor, informe o título da atividade.', 'warning');
+        return;
+      }
+
+      const taskData = {
+        title,
+        cadence,
+        category,
+        status,
+        priority,
+        date,
+        quarter,
+        squad: squad || 'TI',
+        description,
+        tags,
+        impact,
+        urgency,
+        subtasks: STATE.currentEditingSubtasks
+      };
+
+      if (taskId) {
+        const idx = STATE.tasks.findIndex(t => t.id === taskId);
+        if (idx !== -1) {
+          STATE.tasks[idx] = { ...STATE.tasks[idx], ...taskData };
+          showToast('Atividade atualizada com sucesso!', 'success');
+        }
+      } else {
+        const newTask = {
+          id: 'task-' + Date.now(),
+          ...taskData
+        };
+        STATE.tasks.push(newTask);
+        showToast('Nova atividade adicionada ao planejamento!', 'success');
+      }
+
+      saveTasksToStorage();
+      closeTaskModal();
+      renderApp();
+    }
+
+    function cycleTaskStatus(taskId) {
+      const task = STATE.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const order = ['todo', 'in_progress', 'done'];
+      const nextIdx = (order.indexOf(task.status) + 1) % order.length;
+      task.status = order[nextIdx];
+
+      saveTasksToStorage();
+      renderApp();
+      showToast(`Status: ${STATUSES[task.status].name}`, 'info');
+    }
+
+    function confirmDeleteCurrentTask() {
+      const taskId = document.getElementById('taskId').value;
+      if (!taskId) return;
+
+      closeTaskModal();
+      openConfirmModal(
+        'Excluir Atividade',
+        'Tem certeza que deseja remover esta atividade do calendário? Essa ação não pode ser desfeita.',
+        () => {
+          STATE.tasks = STATE.tasks.filter(t => t.id !== taskId);
+          saveTasksToStorage();
+          renderApp();
+          showToast('Atividade excluída com sucesso.', 'warning');
+        }
+      );
+    }
+
+    // =========================================================================
+    // TASK DETAIL VIEW MODAL (With Live Subtasks Toggle)
+    // =========================================================================
+    function viewTaskDetail(taskId) {
+      const task = STATE.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const modal = document.getElementById('taskDetailModal');
+      const cat = CATEGORIES[task.category] || CATEGORIES.projects;
+      const cadence = CADENCES[task.cadence] || CADENCES.monthly;
+      const status = STATUSES[task.status] || STATUSES.todo;
+      const prio = PRIORITIES[task.priority] || PRIORITIES.medium;
+      const dead = getTaskDeadlineStatus(task);
+      const prog = getTaskProgress(task);
+
+      document.getElementById('detailBadges').innerHTML = `
+        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border ${cat.badgeClass}">
+          ${cat.prefix} ${cat.name}
+        </span>
+        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          ${cadence.name}
+        </span>
+        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${status.bg} ${status.color} border border-slate-200 dark:border-slate-800">
+          ${status.name}
+        </span>
+      `;
+
+      document.getElementById('detailTitle').textContent = task.title;
+      document.getElementById('detailDescription').textContent = task.description || 'Nenhuma descrição informada.';
+      
+      const formattedDate = task.date ? task.date.split('-').reverse().join('/') : 'Não informada';
+      document.getElementById('detailDate').textContent = formattedDate;
+      document.getElementById('detailSlaBadge').innerHTML = `<span class="px-2 py-0.5 rounded-full text-[10px] border ${dead.badgeClass}">${dead.label}</span>`;
+      document.getElementById('detailSquad').textContent = task.squad || 'Geral';
+
+      // Render Interactive Subtasks in Detail Modal
+      const subtasksContainer = document.getElementById('detailSubtasksList');
+      const countSpan = document.getElementById('detailSubtasksCount');
+      if (!task.subtasks || task.subtasks.length === 0) {
+        countSpan.textContent = '0/0';
+        subtasksContainer.innerHTML = '<span class="text-slate-400 text-[11px]">Nenhum critério de aceite (DoD) cadastrado.</span>';
+      } else {
+        countSpan.textContent = `${prog.doneCount}/${prog.total} (${prog.percent}%)`;
+        subtasksContainer.innerHTML = task.subtasks.map((st, i) => `
+          <div class="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            <input 
+              type="checkbox" 
+              ${st.done ? 'checked' : ''} 
+              onchange="toggleSubtaskInDetail('${task.id}', ${i})"
+              class="rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+            >
+            <span class="cursor-pointer ${st.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-200'}">${st.text}</span>
+          </div>
+        `).join('');
+      }
+
+      const cycleBtn = document.getElementById('detailCycleStatusBtn');
+      cycleBtn.onclick = () => {
+        cycleTaskStatus(task.id);
+        viewTaskDetail(task.id);
+      };
+
+      const editBtn = document.getElementById('detailEditBtn');
+      editBtn.onclick = () => {
+        closeTaskDetailModal();
+        openTaskModal(task.id);
+      };
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function toggleSubtaskInDetail(taskId, subtaskIdx) {
+      const task = STATE.tasks.find(t => t.id === taskId);
+      if (task && task.subtasks && task.subtasks[subtaskIdx]) {
+        task.subtasks[subtaskIdx].done = !task.subtasks[subtaskIdx].done;
+        saveTasksToStorage();
+        viewTaskDetail(taskId);
+        renderCurrentView();
+      }
+    }
+
+    function closeTaskDetailModal() {
+      document.getElementById('taskDetailModal').classList.add('hidden');
+    }
+
+    // =========================================================================
+    // LOAD CORPORATE MODEL & RESET
+    // =========================================================================
+    function loadCorporateSample() {
+      openConfirmModal(
+        'Carregar Modelo Anual Corporativo',
+        'Deseja carregar o modelo completo com mais de 18 atividades realistas de TI (SOC2, Kubernetes, DRP, SAP, Pentest e rotinas com DoD)?',
+        () => {
+          STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
+          saveTasksToStorage();
+          renderApp();
+          showToast('Modelo Corporativo carregado com sucesso!', 'success');
+        }
+      );
+    }
+
+    function confirmResetAll() {
+      toggleMoreMenu();
+      openConfirmModal(
+        'Limpar Todas as Atividades',
+        'Tem certeza que deseja apagar todas as atividades? O calendário ficará vazio.',
+        () => {
+          STATE.tasks = [];
+          saveTasksToStorage();
+          renderApp();
+          showToast('Todas as atividades foram removidas.', 'info');
+        }
+      );
+    }
+
+    // =========================================================================
+    // DATA EXPORT & IMPORT (CSV & JSON)
+    // =========================================================================
+    function exportDataCSV() {
+      toggleMoreMenu();
+      const headers = ['ID', 'Titulo', 'Cadencia', 'Categoria', 'Status', 'Prioridade', 'Data', 'Trimestre', 'Squad', 'Impacto', 'Urgencia', 'Tags', 'Subtarefas_Total', 'Subtarefas_Concluidas', 'Descricao'];
+      
+      const rows = STATE.tasks.map(t => {
+        const prog = getTaskProgress(t);
+        return [
+          t.id,
+          `"${(t.title || '').replace(/"/g, '""')}"`,
+          t.cadence,
+          t.category,
+          t.status,
+          t.priority,
+          t.date || '',
+          t.quarter || '',
+          `"${(t.squad || '').replace(/"/g, '""')}"`,
+          t.impact || 'high',
+          t.urgency || 'high',
+          `"${(t.tags || []).join(', ')}"`,
+          prog.total,
+          prog.doneCount,
+          `"${(t.description || '').replace(/"/g, '""')}"`
+        ].join(',');
+      });
+
+      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(','), ...rows].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `calendar_io_ti_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      showToast('Planilha CSV gerada com sucesso!', 'success');
+    }
+
+    function exportDataJSON() {
+      toggleMoreMenu();
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(STATE.tasks, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `calendar_io_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('Backup JSON exportado com sucesso!', 'success');
+    }
+
+    function importDataJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported)) {
+            STATE.tasks = imported;
+            saveTasksToStorage();
+            renderApp();
+            showToast(`${imported.length} atividades importadas com sucesso!`, 'success');
+          } else {
+            showToast('Formato JSON inválido.', 'danger');
+          }
+        } catch (err) {
+          showToast('Erro ao processar arquivo JSON.', 'danger');
+        }
+      };
+      reader.readAsText(file);
+      toggleMoreMenu();
+    }
+
+    // =========================================================================
+    // THEME (DARK / LIGHT MODE)
+    // =========================================================================
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      setTheme(isDark ? 'light' : 'dark');
+    }
+
+    function setTheme(theme) {
+      STATE.theme = theme;
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      localStorage.setItem('calendar_io_theme', theme);
+      lucide.createIcons();
+    }
+
+    function toggleMoreMenu() {
+      document.getElementById('moreMenuDropdown').classList.toggle('hidden');
+    }
+
+    // =========================================================================
+    // TOAST NOTIFICATIONS & CONFIRM MODAL
+    // =========================================================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      const typeStyles = {
+        success: 'bg-emerald-950/95 border-emerald-500/40 text-emerald-200',
+        info: 'bg-indigo-950/95 border-indigo-500/40 text-indigo-200',
+        warning: 'bg-amber-950/95 border-amber-500/40 text-amber-200',
+        danger: 'bg-rose-950/95 border-rose-500/40 text-rose-200'
+      };
+
+      const icons = {
+        success: 'check-circle',
+        info: 'info',
+        warning: 'alert-circle',
+        danger: 'alert-triangle'
+      };
+
+      toast.className = `pointer-events-auto flex items-center justify-between gap-3 p-3.5 rounded-xl border shadow-2xl text-xs backdrop-blur-md fade-in ${typeStyles[type] || typeStyles.info}`;
+      toast.innerHTML = `
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="${icons[type]}" class="w-4 h-4 shrink-0"></i>
+          <span class="font-medium leading-tight">${message}</span>
+        </div>
+        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
+      `;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        if (toast && toast.parentElement) {
+          toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+          setTimeout(() => toast.remove(), 300);
+        }
+      }, 4000);
+    }
+
+    function openConfirmModal(title, message, callback) {
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalMessage').textContent = message;
+      STATE.pendingConfirmCallback = callback;
+      
+      const actionBtn = document.getElementById('confirmModalActionBtn');
+      actionBtn.onclick = () => {
+        if (STATE.pendingConfirmCallback) STATE.pendingConfirmCallback();
+        closeConfirmModal();
+      };
+
+      document.getElementById('confirmModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.add('hidden');
+      STATE.pendingConfirmCallback = null;
+    }
+  </script>
+</body>
+</html>
