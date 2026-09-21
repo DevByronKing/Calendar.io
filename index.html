@@ -149,41 +149,41 @@
       </div>
 
       <!-- Center: 6 Executive Views Navigation -->
-      <nav class="hidden xl:flex items-center p-1 bg-slate-100 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-inner">
-        <button id="viewBtnCalendar" onclick="switchView('calendar')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+      <nav class="hidden xl:flex items-center p-1 bg-slate-100 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-inner shrink-0">
+        <button id="viewBtnCalendar" onclick="switchView('calendar')" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
           <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
           <span>Mês</span>
         </button>
-        <button id="viewBtnQuarter" onclick="switchView('quarter')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+        <button id="viewBtnQuarter" onclick="switchView('quarter')" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
           <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-          <span>Matriz Q1-Q4</span>
+          <span>Q1-Q4</span>
         </button>
-        <button id="viewBtnKanban" onclick="switchView('kanban')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+        <button id="viewBtnKanban" onclick="switchView('kanban')" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
           <i data-lucide="kanban" class="w-3.5 h-3.5"></i>
           <span>Kanban</span>
         </button>
-        <button id="viewBtnRoadmap" onclick="switchView('roadmap')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+        <button id="viewBtnRoadmap" onclick="switchView('roadmap')" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
           <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
-          <span>Roadmap Gantt</span>
+          <span>Roadmap</span>
         </button>
-        <button id="viewBtnEisenhower" onclick="switchView('eisenhower')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+        <button id="viewBtnEisenhower" onclick="switchView('eisenhower')" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
           <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
-          <span>Matriz Eisenhower</span>
+          <span>Eisenhower</span>
         </button>
-        <button id="viewBtnAnalytics" onclick="switchView('analytics')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+        <button id="viewBtnAnalytics" onclick="switchView('analytics')" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
           <i data-lucide="pie-chart" class="w-3.5 h-3.5"></i>
-          <span>Analytics TI</span>
+          <span>Analytics</span>
         </button>
       </nav>
 
       <!-- Right: AI Copilot Button, Search & Actions -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 shrink-0">
         
         <!-- PROMINENT AI COPILOT BUTTON -->
         <button 
           onclick="openAICopilotModal()" 
           title="Abrir Assistente de Inteligência Artificial para agendamentos automáticos"
-          class="relative group overflow-hidden flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-500 hover:to-pink-400 text-white text-xs font-bold transition shadow-lg shadow-indigo-500/25 active:scale-95"
+          class="relative group overflow-hidden flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-500 hover:to-pink-400 text-white text-xs font-bold transition shadow-lg shadow-indigo-500/25 active:scale-95 shrink-0"
         >
           <span class="absolute inset-0 w-full h-full bg-white/20 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></span>
           <i data-lucide="sparkles" class="w-4 h-4 text-amber-300 animate-pulse"></i>
@@ -192,12 +192,12 @@
         </button>
 
         <!-- Search Input -->
-        <div class="relative hidden sm:block w-36 md:w-48 lg:w-56">
+        <div class="relative hidden sm:block w-32 md:w-36 lg:w-44">
           <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
           <input 
             type="text" 
             id="searchInput"
-            placeholder="Buscar tarefas, #tags..." 
+            placeholder="Buscar..." 
             class="w-full pl-9 pr-8 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
           >
           <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -210,16 +210,16 @@
           id="loadSampleBtn"
           onclick="loadCorporateSample()" 
           title="Pré-carregar modelo anual completo com dados corporativos de TI"
-          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition"
+          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition shrink-0"
         >
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-500"></i>
-          <span class="hidden 2xl:inline">Resetar Modelo</span>
+          <span class="hidden 2xl:inline">Modelo</span>
         </button>
 
         <!-- New Task Button -->
         <button 
           onclick="openTaskModal()" 
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold transition shadow-md shadow-indigo-600/30"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold transition shadow-md shadow-indigo-600/30 shrink-0"
         >
           <i data-lucide="plus" class="w-4 h-4"></i>
           <span class="hidden sm:inline">Nova Atividade</span>
@@ -297,38 +297,49 @@
     <aside id="sidebar" class="w-full lg:w-72 xl:w-80 shrink-0 flex flex-col gap-4">
 
       <!-- AI QUICK ACTIONS BANNER (Hero Widget) -->
-      <div class="p-4 rounded-2xl bg-gradient-to-br from-indigo-900/40 via-purple-900/30 to-slate-900 border border-indigo-500/30 shadow-lg relative overflow-hidden group">
-        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-purple-500/20 rounded-full blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
-            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400 animate-spin" style="animation-duration: 6s;"></i> IA Smart Scheduler
+      <div class="p-4 rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-900 text-white shadow-xl shadow-indigo-500/25 border border-indigo-400/30 relative overflow-hidden group">
+        <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+        <div class="flex items-center justify-between mb-2.5 relative z-10">
+          <span class="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-300 animate-spin" style="animation-duration: 6s;"></i> IA Smart Scheduler
           </span>
-          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">Pronto</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-sm flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Pronto
+          </span>
         </div>
-        <p class="text-[11px] text-slate-300 leading-relaxed mb-3">
-          Automatize agendamento em lote de visitas, checklists diários e manutenções preventivas com linguagem natural.
+        <p class="text-xs text-indigo-100 font-medium leading-relaxed mb-3.5 relative z-10">
+          Automatize agendamento em lote de visitas a clientes, checklists diários e manutenções com IA.
         </p>
-        <div class="space-y-1.5">
+        <div class="space-y-2 relative z-10">
           <button 
             onclick="openAICopilotModal('visitas_clientes')"
-            class="w-full text-left px-2.5 py-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/30 text-xs font-semibold text-indigo-200 hover:text-white transition flex items-center justify-between"
+            class="w-full text-left px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 active:scale-[0.98] border border-white/20 text-xs font-bold text-white transition flex items-center justify-between shadow-sm group/btn"
           >
-            <span class="flex items-center gap-1.5">🏢 Visitas Barros Barreto & Betina</span>
-            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            <span class="flex items-center gap-2">
+              <span class="text-base">🏢</span>
+              <span>Visitas Barros Barreto & Betina</span>
+            </span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-indigo-200 group-hover/btn:translate-x-1 transition-transform"></i>
           </button>
           <button 
             onclick="openAICopilotModal('checklist_diario')"
-            class="w-full text-left px-2.5 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/30 text-xs font-semibold text-purple-200 hover:text-white transition flex items-center justify-between"
+            class="w-full text-left px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 active:scale-[0.98] border border-white/20 text-xs font-bold text-white transition flex items-center justify-between shadow-sm group/btn"
           >
-            <span class="flex items-center gap-1.5">🧪 Checklist Diário de Testes</span>
-            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            <span class="flex items-center gap-2">
+              <span class="text-base">🧪</span>
+              <span>Checklist Diário de Testes</span>
+            </span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-indigo-200 group-hover/btn:translate-x-1 transition-transform"></i>
           </button>
           <button 
             onclick="openAICopilotModal('manutencao_preventiva')"
-            class="w-full text-left px-2.5 py-1.5 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/30 text-xs font-semibold text-pink-200 hover:text-white transition flex items-center justify-between"
+            class="w-full text-left px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 active:scale-[0.98] border border-white/20 text-xs font-bold text-white transition flex items-center justify-between shadow-sm group/btn"
           >
-            <span class="flex items-center gap-1.5">🔧 Manutenção Preventiva Periódica</span>
-            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            <span class="flex items-center gap-2">
+              <span class="text-base">🔧</span>
+              <span>Manutenção Preventiva</span>
+            </span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-indigo-200 group-hover/btn:translate-x-1 transition-transform"></i>
           </button>
         </div>
       </div>
@@ -449,6 +460,44 @@
       <!-- Top Context Banner (Changes according to View) -->
       <div id="viewHeader" class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 p-4 rounded-2xl shadow-sm">
         <!-- Dynamically injected view controls/title -->
+      </div>
+
+      <!-- GLOBAL EMPTY STATE BANNER (Shown when STATE.tasks.length === 0) -->
+      <div id="globalEmptyState" class="hidden mb-5 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border-2 border-dashed border-indigo-300 dark:border-indigo-500/30 text-center shadow-lg dark:shadow-indigo-950/30">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-xl shadow-indigo-500/30 text-white">
+          <i data-lucide="calendar-plus" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white mb-2">
+          Seu Calendário Estratégico de TI está Pronto para Operar!
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-xl mx-auto mb-6 leading-relaxed">
+          Nenhuma atividade cadastrada no momento. Escolha abaixo para preencher seu planejamento com dados reais de TI ou automatizar rotinas com Inteligência Artificial:
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <button 
+            onclick="restoreCorporateModelDirectly()" 
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition"
+          >
+            <i data-lucide="layers" class="w-4 h-4"></i>
+            <span>Carregar Modelo Corporativo Completo</span>
+          </button>
+          
+          <button 
+            onclick="openAICopilotModal()" 
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 active:scale-95 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition"
+          >
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+            <span>Agendar com Copiloto IA (Visitas & Testes)</span>
+          </button>
+          
+          <button 
+            onclick="openTaskModal()" 
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 font-semibold text-xs transition shadow-sm"
+          >
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Criar Atividade Manual</span>
+          </button>
+        </div>
       </div>
 
       <!-- VIEW 1: CALENDAR VIEW -->
@@ -2497,6 +2546,12 @@ Gere datas realistas em dias úteis (segunda a sexta) a partir de 2026-09-21 at�
       document.getElementById('overallPercentageBadge').textContent = `${percent}% Concluído`;
       document.getElementById('annualProgressBar').style.width = `${percent}%`;
 
+      const emptyEl = document.getElementById('globalEmptyState');
+      if (emptyEl) {
+        if (total === 0) emptyEl.classList.remove('hidden');
+        else emptyEl.classList.add('hidden');
+      }
+
       renderSidebarFilters();
     }
 
@@ -2872,7 +2927,10 @@ Gere datas realistas em dias úteis (segunda a sexta) a partir de 2026-09-21 at�
 
       document.getElementById('analyticsHealthScore').textContent = `${score}%`;
       const subtitle = document.getElementById('analyticsHealthSubtitle');
-      if (score >= 80) {
+      if (total === 0) {
+        subtitle.textContent = 'Sem pendências (Calendário limpo)';
+        subtitle.className = 'text-[10px] text-slate-500 font-semibold';
+      } else if (score >= 80) {
         subtitle.textContent = 'Operação de TI Saudável';
         subtitle.className = 'text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold';
       } else if (score >= 60) {
@@ -2896,42 +2954,61 @@ Gere datas realistas em dias úteis (segunda a sexta) a partir de 2026-09-21 at�
       });
 
       const squadChart = document.getElementById('analyticsSquadChart');
-      squadChart.innerHTML = Object.entries(squadCounts).map(([squad, count]) => {
-        const pct = Math.round((count / total) * 100);
-        return `
-          <div>
-            <div class="flex items-center justify-between text-xs mb-1">
-              <span class="font-bold text-slate-800 dark:text-slate-200">${squad}</span>
-              <span class="font-semibold text-slate-500">${count} tarefas (${pct}%)</span>
-            </div>
-            <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-200 dark:border-slate-800">
-              <div class="h-full bg-indigo-500 rounded-full" style="width: ${pct}%"></div>
-            </div>
+      if (total === 0) {
+        squadChart.innerHTML = `
+          <div class="p-8 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+            <i data-lucide="users" class="w-8 h-8 mx-auto text-slate-400 mb-2 opacity-60"></i>
+            <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">Nenhuma squad com tarefas no momento.</p>
+            <p class="text-[11px] text-slate-400 mt-1">Carregue o modelo corporativo ou use o Copiloto de IA para distribuir atividades.</p>
           </div>
         `;
-      }).join('');
+      } else {
+        squadChart.innerHTML = Object.entries(squadCounts).map(([squad, count]) => {
+          const pct = Math.round((count / total) * 100);
+          return `
+            <div>
+              <div class="flex items-center justify-between text-xs mb-1">
+                <span class="font-bold text-slate-800 dark:text-slate-200">${squad}</span>
+                <span class="font-semibold text-slate-500">${count} tarefas (${pct}%)</span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-200 dark:border-slate-800">
+                <div class="h-full bg-indigo-500 rounded-full" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
 
       const catChart = document.getElementById('analyticsCategoryChart');
-      catChart.innerHTML = Object.entries(CATEGORIES).map(([catKey, cat]) => {
-        const catTasks = tasks.filter(t => t.category === catKey);
-        const catDone = catTasks.filter(t => t.status === 'done').length;
-        const pct = catTasks.length > 0 ? Math.round((catDone / catTasks.length) * 100) : 0;
-        return `
-          <div class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
-            <div class="flex items-center justify-between text-xs mb-1.5">
-              <span class="font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
-                <span>${cat.prefix}</span> ${cat.name}
-              </span>
-              <span class="text-[11px] font-semibold text-slate-500">
-                ${catDone}/${catTasks.length} concluídos (${pct}%)
-              </span>
-            </div>
-            <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
-              <div class="h-full rounded-full transition-all" style="width: ${pct}%; background-color: ${cat.dotColor}"></div>
-            </div>
+      if (total === 0) {
+        catChart.innerHTML = `
+          <div class="p-8 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+            <i data-lucide="pie-chart" class="w-8 h-8 mx-auto text-slate-400 mb-2 opacity-60"></i>
+            <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">Nenhuma categoria com atividades cadastradas.</p>
           </div>
         `;
-      }).join('');
+      } else {
+        catChart.innerHTML = Object.entries(CATEGORIES).map(([catKey, cat]) => {
+          const catTasks = tasks.filter(t => t.category === catKey);
+          const catDone = catTasks.filter(t => t.status === 'done').length;
+          const pct = catTasks.length > 0 ? Math.round((catDone / catTasks.length) * 100) : 0;
+          return `
+            <div class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                  <span>${cat.prefix}</span> ${cat.name}
+                </span>
+                <span class="text-[11px] font-semibold text-slate-500">
+                  ${catDone}/${catTasks.length} concluídos (${pct}%)
+                </span>
+              </div>
+              <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div class="h-full rounded-full transition-all" style="width: ${pct}%; background-color: ${cat.dotColor}"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -3311,12 +3388,23 @@ Gere datas realistas em dias úteis (segunda a sexta) a partir de 2026-09-21 at�
         'Restaurar Modelo Corporativo Completo',
         'Deseja carregar o modelo de TI padrão com auditorias, migrações, visitas e rotinas com DoD?',
         () => {
-          STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
-          saveTasksToStorage();
-          renderApp();
-          showToast('Modelo Corporativo restaurado!', 'success');
+          restoreCorporateModelDirectly();
         }
       );
+    }
+
+    function restoreCorporateModelDirectly() {
+      STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
+      saveTasksToStorage();
+      renderApp();
+      showToast('Modelo Corporativo restaurado com sucesso!', 'success');
+      try {
+        confetti({
+          particleCount: 70,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } catch (e) {}
     }
 
     function confirmResetAll() {
