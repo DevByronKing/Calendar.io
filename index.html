@@ -14,7 +14,16 @@
   <!-- Canvas Confetti CDN for AI scheduling celebration -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS CDN (com supressão do aviso informativo de desenvolvimento) -->
+  <script>
+    (function() {
+      const origWarn = console.warn;
+      console.warn = function(...args) {
+        if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+        origWarn.apply(console, args);
+      };
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
