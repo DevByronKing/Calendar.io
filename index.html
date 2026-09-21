@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calendar.io IT - Calendário Inteligente & Planejamento Anual de TI</title>
-  <meta name="description" content="Plataforma executiva de gestão de atividades, roadmaps, cadências temporais e planejamento estratégico anual para equipes de TI.">
+  <meta name="description" content="Plataforma executiva de TI com Copiloto de Inteligência Artificial para agendamento automático de rotinas, visitas a clientes e manutenção preventiva.">
   
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
+  <!-- Canvas Confetti CDN for AI scheduling celebration -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -29,6 +32,15 @@
               600: '#4f46e5',
               700: '#4338ca',
             }
+          },
+          animation: {
+            'shimmer': 'shimmer 2.5s infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            shimmer: {
+              '100%': { transform: 'translateX(100%)' }
+            }
           }
         }
       }
@@ -39,7 +51,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    /* Custom scrollbar */
+    /* Custom scrollbars */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -62,7 +74,7 @@
       background: rgba(148, 163, 184, 0.8);
     }
     
-    /* Animations */
+    /* Subtle animations */
     .fade-in {
       animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -77,6 +89,11 @@
     @keyframes backdropIn {
       from { opacity: 0; }
       to { opacity: 1; }
+    }
+
+    /* Glow borders and aurora effects */
+    .ai-glow {
+      box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.4), 0 0 10px -5px rgba(168, 85, 247, 0.4);
     }
 
     /* Drag & Drop Visuals */
@@ -115,7 +132,7 @@
         <button id="mobileMenuBtn" class="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
           <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/25 ring-2 ring-indigo-500/30">
           <i data-lucide="calendar-check-2" class="w-6 h-6 text-white"></i>
         </div>
         <div>
@@ -124,7 +141,7 @@
               Calendar<span class="text-indigo-600 dark:text-indigo-400">.io</span>
             </span>
             <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30">
-              IT Enterprise
+              IT Enterprise + AI
             </span>
           </div>
           <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Planejamento Estratégico & Gestão de TI</p>
@@ -159,10 +176,23 @@
         </button>
       </nav>
 
-      <!-- Right: Search & Actions -->
+      <!-- Right: AI Copilot Button, Search & Actions -->
       <div class="flex items-center gap-2">
+        
+        <!-- PROMINENT AI COPILOT BUTTON -->
+        <button 
+          onclick="openAICopilotModal()" 
+          title="Abrir Assistente de Inteligência Artificial para agendamentos automáticos"
+          class="relative group overflow-hidden flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-500 hover:to-pink-400 text-white text-xs font-bold transition shadow-lg shadow-indigo-500/25 active:scale-95"
+        >
+          <span class="absolute inset-0 w-full h-full bg-white/20 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></span>
+          <i data-lucide="sparkles" class="w-4 h-4 text-amber-300 animate-pulse"></i>
+          <span>IA Copilot</span>
+          <span class="hidden md:inline text-[10px] bg-white/20 px-1.5 py-0.5 rounded-md text-white font-mono">Auto</span>
+        </button>
+
         <!-- Search Input -->
-        <div class="relative hidden sm:block w-40 md:w-52 lg:w-60">
+        <div class="relative hidden sm:block w-36 md:w-48 lg:w-56">
           <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
           <input 
             type="text" 
@@ -180,11 +210,10 @@
           id="loadSampleBtn"
           onclick="loadCorporateSample()" 
           title="Pré-carregar modelo anual completo com dados corporativos de TI"
-          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-xs font-semibold transition shadow-sm"
+          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition"
         >
-          <i data-lucide="sparkles" class="w-4 h-4 text-indigo-500 dark:text-indigo-400"></i>
-          <span class="hidden 2xl:inline">Modelo Anual TI</span>
-          <span class="2xl:hidden">Modelo</span>
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span class="hidden 2xl:inline">Resetar Modelo</span>
         </button>
 
         <!-- New Task Button -->
@@ -266,6 +295,43 @@
     
     <!-- SIDEBAR FILTERS & KPI SUMMARY -->
     <aside id="sidebar" class="w-full lg:w-72 xl:w-80 shrink-0 flex flex-col gap-4">
+
+      <!-- AI QUICK ACTIONS BANNER (Hero Widget) -->
+      <div class="p-4 rounded-2xl bg-gradient-to-br from-indigo-900/40 via-purple-900/30 to-slate-900 border border-indigo-500/30 shadow-lg relative overflow-hidden group">
+        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-purple-500/20 rounded-full blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400 animate-spin" style="animation-duration: 6s;"></i> IA Smart Scheduler
+          </span>
+          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">Pronto</span>
+        </div>
+        <p class="text-[11px] text-slate-300 leading-relaxed mb-3">
+          Automatize agendamento em lote de visitas, checklists diários e manutenções preventivas com linguagem natural.
+        </p>
+        <div class="space-y-1.5">
+          <button 
+            onclick="openAICopilotModal('visitas_clientes')"
+            class="w-full text-left px-2.5 py-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/30 text-xs font-semibold text-indigo-200 hover:text-white transition flex items-center justify-between"
+          >
+            <span class="flex items-center gap-1.5">🏢 Visitas Barros Barreto & Betina</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+          <button 
+            onclick="openAICopilotModal('checklist_diario')"
+            class="w-full text-left px-2.5 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/30 text-xs font-semibold text-purple-200 hover:text-white transition flex items-center justify-between"
+          >
+            <span class="flex items-center gap-1.5">🧪 Checklist Diário de Testes</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+          <button 
+            onclick="openAICopilotModal('manutencao_preventiva')"
+            class="w-full text-left px-2.5 py-1.5 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/30 text-xs font-semibold text-pink-200 hover:text-white transition flex items-center justify-between"
+          >
+            <span class="flex items-center gap-1.5">🔧 Manutenção Preventiva Periódica</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
 
       <!-- Strategic Annual Progress KPI Card -->
       <div class="bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/90 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-5 shadow-sm dark:shadow-xl relative overflow-hidden">
@@ -640,6 +706,182 @@
   </div>
 
   <!-- ========================================================================= -->
+  <!-- MODAL: AI COPILOT SMART SCHEDULER (Assistant + Auto-Schedule Generator) -->
+  <!-- ========================================================================= -->
+  <div id="aiCopilotModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-950/85 backdrop-blur-md modal-backdrop" onclick="closeAICopilotModal()"></div>
+    
+    <div class="relative bg-white dark:bg-slate-900 border border-indigo-500/40 dark:border-indigo-500/30 rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden z-10 fade-in flex flex-col max-h-[92vh] ai-glow">
+      
+      <!-- AI Header with Animated Gradient Accent -->
+      <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-indigo-50 via-purple-50 to-white dark:from-indigo-950/50 dark:via-purple-950/40 dark:to-slate-900">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
+            <i data-lucide="sparkles" class="w-5 h-5 animate-pulse"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Copiloto de IA de Planejamento de TI</h2>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">Motor Heurístico Inteligente</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Diga o que precisa agendar ou selecione um modelo de automação abaixo:</p>
+          </div>
+        </div>
+        <button onclick="closeAICopilotModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- AI Content Body -->
+      <div class="p-6 space-y-5 overflow-y-auto flex-1">
+        
+        <!-- Natural Language Prompt Bar -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">
+            Comando em Linguagem Natural:
+          </label>
+          <div class="relative">
+            <textarea 
+              id="aiPromptInput" 
+              rows="3" 
+              placeholder="Ex: 'Estipule aleatoriamente de segunda a sexta 2 dias no mês para visita no cliente Barros Barreto e mais dois dias no Betina'..."
+              class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition resize-none leading-relaxed"
+            ></textarea>
+            <button 
+              type="button" 
+              onclick="executeAIPrompt()" 
+              class="absolute right-2.5 bottom-3.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold transition shadow-md flex items-center gap-1.5"
+            >
+              <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+              <span>Processar IA</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick 1-Click Automations -->
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
+            ⚡ Automações Prontas em 1 Clique (Testadas e Otimizadas):
+          </span>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+            <!-- Preset 1: Visitas Clientes -->
+            <button 
+              type="button" 
+              onclick="applyAIPreset('visitas_clientes')"
+              class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30 text-left transition flex flex-col justify-between group"
+            >
+              <div>
+                <span class="text-base mb-1 block">🏢</span>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">Visitas aos Clientes</h4>
+                <p class="text-[11px] text-slate-500 leading-snug mt-1">
+                  2 dias/mês de seg a sex para <strong>Barros Barreto</strong> e 2 dias para <strong>Betina</strong> (sem colisões).
+                </p>
+              </div>
+              <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold mt-2 flex items-center gap-1">
+                Executar agora <i data-lucide="chevron-right" class="w-3 h-3"></i>
+              </span>
+            </button>
+
+            <!-- Preset 2: Checklist Diario -->
+            <button 
+              type="button" 
+              onclick="applyAIPreset('checklist_diario')"
+              class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 hover:border-purple-500 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 text-left transition flex flex-col justify-between group"
+            >
+              <div>
+                <span class="text-base mb-1 block">🧪</span>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition">Checklist Diário de Testes</h4>
+                <p class="text-[11px] text-slate-500 leading-snug mt-1">
+                  Replicar testes de aplicações matinais de segunda a sexta para o próximo mês com DoD completo.
+                </p>
+              </div>
+              <span class="text-[10px] text-purple-600 dark:text-purple-400 font-semibold mt-2 flex items-center gap-1">
+                Executar agora <i data-lucide="chevron-right" class="w-3 h-3"></i>
+              </span>
+            </button>
+
+            <!-- Preset 3: Manutencao Preventiva -->
+            <button 
+              type="button" 
+              onclick="applyAIPreset('manutencao_preventiva')"
+              class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 hover:border-pink-500 hover:bg-pink-50/50 dark:hover:bg-pink-950/30 text-left transition flex flex-col justify-between group"
+            >
+              <div>
+                <span class="text-base mb-1 block">🔧</span>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition">Manutenção Preventiva</h4>
+                <p class="text-[11px] text-slate-500 leading-snug mt-1">
+                  Distribuição quinzenal equilibrada de rotinas em servidores, switches, storage e bancos.
+                </p>
+              </div>
+              <span class="text-[10px] text-pink-600 dark:text-pink-400 font-semibold mt-2 flex items-center gap-1">
+                Executar agora <i data-lucide="chevron-right" class="w-3 h-3"></i>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Simulation & Approval Table (Preview before committing) -->
+        <div id="aiPreviewSection" class="hidden border border-slate-200 dark:border-slate-800 rounded-2xl p-4 bg-slate-50 dark:bg-slate-950/50 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+              <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                Pré-visualização do Planejamento (<span id="aiPreviewCount">0</span> atividades geradas)
+              </h3>
+            </div>
+            <button 
+              type="button" 
+              onclick="regenerateAIPrompt()" 
+              class="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline font-semibold flex items-center gap-1"
+            >
+              <i data-lucide="shuffle" class="w-3 h-3"></i> Sortear Novas Datas
+            </button>
+          </div>
+
+          <p class="text-[11px] text-slate-500 leading-relaxed" id="aiPreviewDescription"></p>
+
+          <!-- Generated Tasks List -->
+          <div class="max-h-56 overflow-y-auto space-y-2 pr-1" id="aiGeneratedTasksList">
+            <!-- Dynamic task items preview -->
+          </div>
+
+          <!-- Confirm button -->
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <span class="text-[11px] text-slate-500">Revise os itens acima antes de gravar.</span>
+            <div class="flex items-center gap-2">
+              <button 
+                type="button" 
+                onclick="discardAIGenerated()" 
+                class="px-3.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-300 dark:hover:bg-slate-700 transition"
+              >
+                Descartar
+              </button>
+              <button 
+                type="button" 
+                onclick="commitAIGeneratedTasks()" 
+                class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white text-xs font-bold transition shadow-lg shadow-emerald-600/30 flex items-center gap-1.5"
+              >
+                <i data-lucide="check" class="w-4 h-4"></i>
+                <span>Confirmar & Inserir no Calendário</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Help / Note -->
+      <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/30 flex items-center justify-between text-xs text-slate-500">
+        <span class="flex items-center gap-1.5">
+          <i data-lucide="info" class="w-4 h-4 text-indigo-500"></i> As tarefas geradas respeitam feriados e dias de semana de segunda a sexta.
+        </span>
+        <button onclick="closeAICopilotModal()" class="font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">Fechar</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- MODAL: ADD / EDIT ACTIVITY (With Subtasks DoD & Tags) -->
   <!-- ========================================================================= -->
   <div id="taskModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
@@ -691,6 +933,7 @@
           <div>
             <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Categoria de TI *</label>
             <select id="taskCategoryInput" required class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500">
+              <option value="clients">🏢 Visitas & Clientes</option>
               <option value="projects">🚀 Projetos</option>
               <option value="routines">🔄 Rotinas & Operações</option>
               <option value="training">🎓 Capacitação</option>
@@ -743,13 +986,13 @@
         <!-- Squad and Tags -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Squad / Time</label>
-            <input type="text" id="taskSquadInput" placeholder="Ex: SecOps, DevOps, Infra, Suporte" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Squad / Time / Técnico</label>
+            <input type="text" id="taskSquadInput" placeholder="Ex: Suporte N2, Atendimento Externo, DevOps" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500">
           </div>
 
           <div>
             <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Tags (separadas por vírgula)</label>
-            <input type="text" id="taskTagsInput" placeholder="Ex: #AWS, #Compliance, #LGPD" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500">
+            <input type="text" id="taskTagsInput" placeholder="Ex: #Visita, #BarrosBarreto, #Betina, #Testes" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500">
           </div>
         </div>
 
@@ -922,10 +1165,11 @@
   <!-- ========================================================================= -->
   <script>
     /**
-     * CALENDAR.IO IT - EXECUTIVE ROADMAP & TASK PLATFORM
+     * CALENDAR.IO IT - EXECUTIVE ROADMAP, TASK & AI SCHEDULER PLATFORM
      */
 
     const CATEGORIES = {
+      clients: { id: 'clients', name: 'Visitas & Clientes', icon: 'building-2', badgeClass: 'bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-500/30', dotColor: '#14b8a6', prefix: '🏢' },
       projects: { id: 'projects', name: 'Projetos', icon: 'rocket', badgeClass: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/30', dotColor: '#6366f1', prefix: '🚀' },
       routines: { id: 'routines', name: 'Rotinas', icon: 'refresh-cw', badgeClass: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30', dotColor: '#10b981', prefix: '🔄' },
       training: { id: 'training', name: 'Capacitação', icon: 'graduation-cap', badgeClass: 'bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-500/30', dotColor: '#a855f7', prefix: '🎓' },
@@ -953,7 +1197,7 @@
       critical: { id: 'critical', name: 'Crítica', dot: 'bg-rose-500' }
     };
 
-    // Realistic Corporate IT Preset with Subtasks (DoD), Tags, and Impact/Urgency
+    // Base Corporate IT Dataset with Realistic Activities
     const CORPORATE_IT_PRESET = [
       {
         id: 'task-1',
@@ -998,40 +1242,41 @@
       },
       {
         id: 'task-3',
-        title: 'Renovação Contratual Microsoft & VMware',
-        description: 'Fechamento anual de licenças de virtualização e pacote corporativo Office 365 / Entra ID com o setor de compras.',
-        cadence: 'annual',
-        category: 'routines',
+        title: 'Visita Técnica Presencial: Cliente Barros Barreto',
+        description: 'Alinhamento com a diretoria do cliente Barros Barreto, inspeção de cabeamento e checklist de estabilidade.',
+        cadence: 'monthly',
+        category: 'clients',
         status: 'done',
-        priority: 'medium',
-        date: '2026-01-25',
-        quarter: 'Q1',
-        squad: 'Gestão de Ativos',
-        tags: ['#FinOps', '#Licencas'],
-        impact: 'low',
+        priority: 'high',
+        date: '2026-09-08',
+        quarter: 'Q3',
+        squad: 'Atendimento Externo',
+        tags: ['#Visita', '#BarrosBarreto', '#Infra'],
+        impact: 'high',
         urgency: 'high',
         subtasks: [
-          { id: 'st-8', text: 'Inventário de usuários ativos no Entra ID', done: true },
-          { id: 'st-9', text: 'Negociação de desconto de volume com parceiro', done: true }
+          { id: 'st-bb1', text: 'Reunião de alinhamento com a TI do cliente', done: true },
+          { id: 'st-bb2', text: 'Inspeção do no-break e rack principal', done: true },
+          { id: 'st-bb3', text: 'Coleta de assinatura da ordem de serviço', done: true }
         ]
       },
       {
         id: 'task-4',
-        title: 'Treinamento AWS Solutions Architect Pro',
-        description: 'Capacitação imersiva de 4 engenheiros de cloud com simulados e vouchers de certificação oficial.',
-        cadence: 'quarterly',
-        category: 'training',
-        status: 'done',
+        title: 'Visita Técnica e Suporte Local: Cliente Betina',
+        description: 'Manutenção preventiva dos pontos de rede e conferência dos backups locais no cliente Betina.',
+        cadence: 'monthly',
+        category: 'clients',
+        status: 'in_progress',
         priority: 'medium',
-        date: '2026-03-28',
-        quarter: 'Q1',
-        squad: 'Engenharia de Cloud',
-        tags: ['#AWS', '#Certificacao'],
+        date: '2026-09-24',
+        quarter: 'Q3',
+        squad: 'Atendimento Externo',
+        tags: ['#Visita', '#Betina', '#Suporte'],
         impact: 'high',
-        urgency: 'low',
+        urgency: 'high',
         subtasks: [
-          { id: 'st-10', text: 'Conclusão dos módulos de High Availability', done: true },
-          { id: 'st-11', text: 'Agendamento e realização dos exames oficiais', done: true }
+          { id: 'st-bt1', text: 'Validação dos links redundantes de internet', done: true },
+          { id: 'st-bt2', text: 'Teste dos switches de borda', done: false }
         ]
       },
       {
@@ -1096,21 +1341,22 @@
       },
       {
         id: 'task-8',
-        title: 'Workshop DevSecOps: Shift-Left & SAST/DAST',
-        description: 'Treinamento prático integrando SonarQube e Trivy nos pipelines CI/CD do GitLab.',
-        cadence: 'quarterly',
-        category: 'training',
-        status: 'todo',
-        priority: 'low',
-        date: '2026-09-28',
+        title: 'Checklist Diário Matinal de Testes das Aplicações',
+        description: 'Verificação operacional de login, latência de endpoints e fila de mensagens em produção.',
+        cadence: 'daily_weekly',
+        category: 'routines',
+        status: 'in_progress',
+        priority: 'high',
+        date: '2026-09-21',
         quarter: 'Q3',
-        squad: 'Engenharia de Software',
-        tags: ['#DevSecOps', '#GitLab'],
+        squad: 'Operações N1',
+        tags: ['#Checklist', '#Testes', '#AppMonitor'],
         impact: 'high',
-        urgency: 'low',
+        urgency: 'high',
         subtasks: [
-          { id: 'st-21', text: 'Criação do repositório template com pipeline seguro', done: false },
-          { id: 'st-22', text: 'Sessão ao vivo de 2 horas com os times de desenvolvimento', done: false }
+          { id: 'st-ck1', text: 'Teste de autenticação no portal do cliente', done: true },
+          { id: 'st-ck2', text: 'Verificação da latência dos gateways de pagamento', done: true },
+          { id: 'st-ck3', text: 'Inspeção do log de exceções no Sentry', done: false }
         ]
       },
       {
@@ -1129,8 +1375,7 @@
         urgency: 'high',
         subtasks: [
           { id: 'st-23', text: 'Corte de dados (Cutover) e freeze das tabelas antigas', done: false },
-          { id: 'st-24', text: 'Homologação da mensageria fiscal com SEFAZ', done: false },
-          { id: 'st-25', text: 'Plantão de Hypercare 24x7 na primeira semana', done: false }
+          { id: 'st-24', text: 'Homologação da mensageria fiscal com SEFAZ', done: false }
         ]
       },
       {
@@ -1160,7 +1405,7 @@
         category: 'routines',
         status: 'todo',
         priority: 'high',
-        date: '2026-09-18', // OVERDUE ON PURPOSE TO DEMO RISK ENGINE
+        date: '2026-09-18', // OVERDUE
         quarter: 'Q3',
         squad: 'Infraestrutura',
         tags: ['#Backup', '#RansomwareProof'],
@@ -1173,135 +1418,22 @@
       },
       {
         id: 'task-12',
-        title: 'Hackathon Interno: Automações com GenAI',
-        description: 'Competição de 48 horas para criar agentes inteligentes de suporte técnico e triagem de chamados.',
-        cadence: 'annual',
-        category: 'training',
-        status: 'todo',
-        priority: 'medium',
-        date: '2026-11-20',
-        quarter: 'Q4',
-        squad: 'Inovação TI',
-        tags: ['#IA', '#Automacao'],
-        impact: 'high',
-        urgency: 'low',
-        subtasks: [
-          { id: 'st-30', text: 'Premiação e jurados definidos', done: false },
-          { id: 'st-31', text: 'Apresentação dos protótipos para a diretoria', done: false }
-        ]
-      },
-      {
-        id: 'task-13',
-        title: 'Planejamento Orçamentário de TI 2027 (CAPEX/OPEX)',
-        description: 'Levantamento de demandas de novos servidores, links redundantes, licenças de software e headcount.',
-        cadence: 'annual',
-        category: 'indicators',
-        status: 'todo',
-        priority: 'critical',
-        date: '2026-11-14',
-        quarter: 'Q4',
-        squad: 'Diretoria & FinOps',
-        tags: ['#CAPEX', '#OPEX', '#Orcamento'],
-        impact: 'high',
-        urgency: 'low',
-        subtasks: [
-          { id: 'st-32', text: 'Coleta das demandas de hardware com os líderes de squad', done: false },
-          { id: 'st-33', text: 'Apresentação da planilha consolidada ao CFO', done: false }
-        ]
-      },
-      {
-        id: 'task-14',
-        title: 'Modernização de Switches Core e Wi-Fi 6',
-        description: 'Substituição do parque de switches e access points nos prédios da sede e filiais.',
-        cadence: 'quarterly',
-        category: 'projects',
-        status: 'todo',
-        priority: 'high',
-        date: '2026-10-25',
-        quarter: 'Q4',
-        squad: 'Redes & Telecom',
-        tags: ['#Redes', '#Hardware'],
-        impact: 'low',
-        urgency: 'low',
-        subtasks: [
-          { id: 'st-34', text: 'Recebimento dos equipamentos homologados', done: false },
-          { id: 'st-35', text: 'Janela noturna de migração das VLANs', done: false }
-        ]
-      },
-      {
-        id: 'task-15',
-        title: 'Renovação de Certificados Digitais SSL Wildcard',
-        description: 'Atualização e verificação de expiração dos certificados dos domínios principais e API gateways.',
+        title: 'Manutenção Preventiva Quinzenal de Servidores e Nobreaks',
+        description: 'Limpeza de logs de transação, calibração das baterias do nobreak e inspeção térmica dos racks.',
         cadence: 'monthly',
         category: 'routines',
         status: 'todo',
-        priority: 'high',
-        date: '2026-11-05',
-        quarter: 'Q4',
-        squad: 'DevOps',
-        tags: ['#SSL', '#SecOps'],
-        impact: 'high',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-36', text: 'Emissão da CSR com chave de 4096 bits', done: false },
-          { id: 'st-37', text: 'Deploy nos Load Balancers AWS ALB', done: false }
-        ]
-      },
-      {
-        id: 'task-16',
-        title: 'Retrospectiva Anual de TI & Balanço de Metas',
-        description: 'Apresentação dos resultados de SLA, projetos entregues, incidentes P1 e metas alcançadas à Diretoria.',
-        cadence: 'annual',
-        category: 'indicators',
-        status: 'todo',
         priority: 'medium',
-        date: '2026-12-10',
-        quarter: 'Q4',
-        squad: 'Gestão Executiva',
-        tags: ['#Diretoria', '#Metas'],
-        impact: 'high',
-        urgency: 'low',
-        subtasks: [
-          { id: 'st-38', text: 'Consolidação dos KPIs de uptime de 99.9%', done: false },
-          { id: 'st-39', text: 'Publicação do relatório anual de TI para a companhia', done: false }
-        ]
-      },
-      {
-        id: 'task-17',
-        title: 'Checklist Matinal de Datacenter & Servidores',
-        description: 'Verificação diária de temperatura dos racks, alertas de storage SAN e status dos no-breaks.',
-        cadence: 'daily_weekly',
-        category: 'routines',
-        status: 'in_progress',
-        priority: 'medium',
-        date: '2026-09-21',
-        quarter: 'Q3',
-        squad: 'Operações N1',
-        tags: ['#Checklist', '#Datacenter'],
-        impact: 'low',
-        urgency: 'high',
-        subtasks: [
-          { id: 'st-40', text: 'Inspeção física dos displays de ar condicionado de precisão', done: true },
-          { id: 'st-41', text: 'Conferência do painel de alarmes do Zabbix', done: true }
-        ]
-      },
-      {
-        id: 'task-18',
-        title: 'Patch Tuesday & Homologação de Atualizações',
-        description: 'Distribuição controlada de patches da Microsoft e kernels Linux em ambiente de staging.',
-        cadence: 'daily_weekly',
-        category: 'security',
-        status: 'todo',
-        priority: 'high',
-        date: '2026-09-25',
+        date: '2026-09-26',
         quarter: 'Q3',
         squad: 'Infraestrutura',
-        tags: ['#PatchTuesday', '#Seguranca'],
+        tags: ['#Preventiva', '#Hardware', '#Datacenter'],
         impact: 'high',
         urgency: 'high',
         subtasks: [
-          { id: 'st-42', text: 'Aprovação dos pacotes no WSUS corporativo', done: false },
-          { id: 'st-43', text: 'Reinicialização programada dos servidores secundários', done: false }
+          { id: 'st-mp1', text: 'Inspeção dos filtros de ar dos racks', done: false },
+          { id: 'st-mp2', text: 'Auditoria da integridade dos discos RAID no Storage', done: false },
+          { id: 'st-mp3', text: 'Teste de autonomia das baterias dos no-breaks', done: false }
         ]
       }
     ];
@@ -1311,9 +1443,9 @@
     // =========================================================================
     const STATE = {
       tasks: [],
-      currentView: 'calendar', // 'calendar' | 'quarter' | 'kanban' | 'roadmap' | 'eisenhower' | 'analytics'
+      currentView: 'calendar',
       currentYear: 2026,
-      currentMonth: 8, // 0 = Jan, 8 = Setembro
+      currentMonth: 8, // Setembro
       activeCadence: 'all',
       activeCategory: 'all',
       activeStatus: 'all',
@@ -1323,27 +1455,21 @@
       pendingConfirmCallback: null,
       theme: 'dark',
       draggedTaskId: null,
-      currentEditingSubtasks: []
+      currentEditingSubtasks: [],
+      aiGeneratedTasksBuffer: []
     };
 
-    // Current Virtual Context Date for Demo Pacing (September 21, 2026)
     const CONTEXT_TODAY = new Date('2026-09-21T00:00:00');
 
     // =========================================================================
     // INITIALIZATION & LOCALSTORAGE
     // =========================================================================
     document.addEventListener('DOMContentLoaded', () => {
-      // Saved Theme
       const savedTheme = localStorage.getItem('calendar_io_theme') || 'dark';
       setTheme(savedTheme);
 
-      // Load tasks
       loadTasksFromStorage();
-
-      // Listeners
       setupListeners();
-
-      // Render
       renderSidebarFilters();
       renderApp();
 
@@ -1363,7 +1489,7 @@
       } else {
         STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
         saveTasksToStorage();
-        showToast('Modelo anual corporativo de TI carregado com sucesso!', 'info');
+        showToast('Modelo corporativo de TI inicializado!', 'info');
       }
     }
 
@@ -1398,7 +1524,6 @@
         onSearchChange(e.target.value);
       });
 
-      // Target Date auto detects Quarter
       const dateInput = document.getElementById('taskDateInput');
       const quarterInput = document.getElementById('taskQuarterInput');
       dateInput.addEventListener('change', (e) => {
@@ -1424,6 +1549,336 @@
       mobileMenuBtn.addEventListener('click', () => {
         sidebar.classList.toggle('hidden');
       });
+    }
+
+    // =========================================================================
+    // 🤖 AI COPILOT SMART SCHEDULING ENGINE
+    // =========================================================================
+    function openAICopilotModal(presetKey = null) {
+      const modal = document.getElementById('aiCopilotModal');
+      modal.classList.remove('hidden');
+      document.getElementById('aiPreviewSection').classList.add('hidden');
+      
+      const input = document.getElementById('aiPromptInput');
+      if (presetKey === 'visitas_clientes') {
+        input.value = "Estipule aleatoriamente de segunda a sexta 2 dias no mês para visita ao cliente Barros Barreto e mais dois dias no mês para o Betina nos próximos 3 meses.";
+        applyAIPreset('visitas_clientes');
+      } else if (presetKey === 'checklist_diario') {
+        input.value = "Todos os dias úteis tenho que fazer checklist matinal de testes nas aplicações.";
+        applyAIPreset('checklist_diario');
+      } else if (presetKey === 'manutencao_preventiva') {
+        input.value = "Estipule quantidade de vezes que devo fazer manutenção preventiva quinzenal em servidores e infraestrutura.";
+        applyAIPreset('manutencao_preventiva');
+      } else {
+        input.value = "";
+      }
+
+      lucide.createIcons();
+    }
+
+    function closeAICopilotModal() {
+      document.getElementById('aiCopilotModal').classList.add('hidden');
+    }
+
+    function applyAIPreset(presetKey) {
+      if (presetKey === 'visitas_clientes') {
+        generateSmartVisits([
+          { client: 'Barros Barreto', daysPerMonth: 2 },
+          { client: 'Betina', daysPerMonth: 2 }
+        ], 3); // 3 months ahead
+      } else if (presetKey === 'checklist_diario') {
+        generateDailyAppChecklists(20); // next 20 business days
+      } else if (presetKey === 'manutencao_preventiva') {
+        generatePreventiveMaintenanceRoutines(6); // 6 biweekly slots
+      }
+    }
+
+    function executeAIPrompt() {
+      const prompt = document.getElementById('aiPromptInput').value.trim().toLowerCase();
+      if (!prompt) {
+        showToast('Por favor, digite uma instrução para a IA.', 'warning');
+        return;
+      }
+
+      // Natural language intent detection
+      if (prompt.includes('visita') || prompt.includes('barros') || prompt.includes('betina') || prompt.includes('cliente')) {
+        let clients = [];
+        if (prompt.includes('barros') && prompt.includes('betina')) {
+          clients = [{ client: 'Barros Barreto', daysPerMonth: 2 }, { client: 'Betina', daysPerMonth: 2 }];
+        } else if (prompt.includes('barros')) {
+          clients = [{ client: 'Barros Barreto', daysPerMonth: 2 }];
+        } else if (prompt.includes('betina')) {
+          clients = [{ client: 'Betina', daysPerMonth: 2 }];
+        } else {
+          clients = [{ client: 'Cliente Corporativo', daysPerMonth: 2 }];
+        }
+        generateSmartVisits(clients, 3);
+      } else if (prompt.includes('checklist') || prompt.includes('teste') || prompt.includes('todos os dias') || prompt.includes('diári')) {
+        generateDailyAppChecklists(20);
+      } else if (prompt.includes('preventiv') || prompt.includes('manutenç') || prompt.includes('servidor')) {
+        generatePreventiveMaintenanceRoutines(6);
+      } else {
+        // Fallback smart task generator based on prompt
+        generateGenericScheduledTask(prompt);
+      }
+    }
+
+    function regenerateAIPrompt() {
+      executeAIPrompt();
+      showToast('Datas e horários recalculados pela IA.', 'info');
+    }
+
+    /**
+     * Algorithm 1: Random Business Days (Mon-Fri) without collision
+     */
+    function generateSmartVisits(clientConfigs, monthsCount = 3) {
+      const generated = [];
+      const usedDates = new Set();
+      const baseYear = STATE.currentYear;
+      const startMonth = STATE.currentMonth; // September
+
+      for (let m = 0; m < monthsCount; m++) {
+        const targetMonth = (startMonth + m) % 12;
+        const targetYear = baseYear + Math.floor((startMonth + m) / 12);
+        const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+
+        // Get all valid business days (Mon = 1, Tue = 2, Wed = 3, Thu = 4, Fri = 5)
+        const businessDays = [];
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateObj = new Date(targetYear, targetMonth, d);
+          const dayOfWeek = dateObj.getDay();
+          // Skip past days if current month
+          if (m === 0 && d < CONTEXT_TODAY.getDate()) continue;
+          if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+            businessDays.push(d);
+          }
+        }
+
+        // Shuffle business days
+        const shuffled = [...businessDays].sort(() => 0.5 - Math.random());
+
+        clientConfigs.forEach(cfg => {
+          let chosenCount = 0;
+          for (const d of shuffled) {
+            if (chosenCount >= cfg.daysPerMonth) break;
+            const iso = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            if (!usedDates.has(iso)) {
+              usedDates.add(iso);
+              chosenCount++;
+
+              const q = targetMonth <= 2 ? 'Q1' : (targetMonth <= 5 ? 'Q2' : (targetMonth <= 8 ? 'Q3' : 'Q4'));
+
+              generated.push({
+                id: 'ai-visit-' + Date.now() + Math.random().toString(36).substr(2, 5),
+                title: `Visita Técnica e Suporte: ${cfg.client}`,
+                cadence: 'monthly',
+                category: 'clients',
+                status: 'todo',
+                priority: 'high',
+                date: iso,
+                quarter: q,
+                squad: 'Atendimento Externo',
+                tags: ['#Visita', `#${cfg.client.replace(/\s+/g, '')}`, '#Presencial'],
+                impact: 'high',
+                urgency: 'high',
+                description: `Visita técnica programada no cliente ${cfg.client} para inspeção preventiva, atendimento aos usuários e alinhamento com a gestão.`,
+                subtasks: [
+                  { id: 'st-v1', text: 'Reunião de alinhamento e coleta de demandas com gestor local', done: false },
+                  { id: 'st-v2', text: 'Inspeção física do rack, no-break e cabeamento', done: false },
+                  { id: 'st-v3', text: 'Conferência do status dos backups e antivírus nos computadores', done: false },
+                  { id: 'st-v4', text: 'Emissão e assinatura do Relatório de Visita Técnica', done: false }
+                ]
+              });
+            }
+          }
+        });
+      }
+
+      // Sort chronological
+      generated.sort((a, b) => a.date.localeCompare(b.date));
+      displayAIPreview(generated, `Visitas distribuídas aleatoriamente de segunda a sexta-feira para os clientes especificados ao longo de ${monthsCount} meses, sem colisões de datas no mesmo dia.`);
+    }
+
+    /**
+     * Algorithm 2: Daily Application Tests Checklist Generator
+     */
+    function generateDailyAppChecklists(workdaysCount = 20) {
+      const generated = [];
+      let currentDate = new Date(CONTEXT_TODAY);
+      let count = 0;
+
+      while (count < workdaysCount) {
+        currentDate.setDate(currentDate.getDate() + 1);
+        const dayOfWeek = currentDate.getDay();
+        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Mon - Fri
+          count++;
+          const y = currentDate.getFullYear();
+          const m = currentDate.getMonth();
+          const d = currentDate.getDate();
+          const iso = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const q = m <= 2 ? 'Q1' : (m <= 5 ? 'Q2' : (m <= 8 ? 'Q3' : 'Q4'));
+
+          generated.push({
+            id: 'ai-daily-' + Date.now() + Math.random().toString(36).substr(2, 5),
+            title: `Checklist Matinal: Testes e Estabilidade das Aplicações`,
+            cadence: 'daily_weekly',
+            category: 'routines',
+            status: 'todo',
+            priority: 'high',
+            date: iso,
+            quarter: q,
+            squad: 'Operações N1 / QA',
+            tags: ['#Checklist', '#Testes', '#RotinaMatinal'],
+            impact: 'high',
+            urgency: 'high',
+            description: `Rotina diária matinal obrigatória para validação do correto funcionamento dos sistemas e prevenção de indisponibilidade.`,
+            subtasks: [
+              { id: 'st-d1', text: 'Teste de autenticação e login de usuários no portal', done: false },
+              { id: 'st-d2', text: 'Verificação da latência dos endpoints principais da API (<200ms)', done: false },
+              { id: 'st-d3', text: 'Inspeção da fila de processamento de mensagens e webhooks', done: false },
+              { id: 'st-d4', text: 'Conferência do painel de exceções críticas no Sentry / Grafana', done: false }
+            ]
+          });
+        }
+      }
+
+      displayAIPreview(generated, `Gerados ${generated.length} checklists matinais sequenciais (dias úteis de segunda a sexta) com 4 critérios de aceite (DoD) de monitoramento.`);
+    }
+
+    /**
+     * Algorithm 3: Preventive Maintenance Routines
+     */
+    function generatePreventiveMaintenanceRoutines(slotsCount = 6) {
+      const generated = [];
+      const scopes = [
+        { scope: 'Servidores Físicos & Storages SAN', focus: 'Limpeza física de poeira, teste de fans e leitura de SMART dos discos RAID.' },
+        { scope: 'Banco de Dados & Rotação de Logs', focus: 'Reindexação de tabelas, análise de consultas lentas e purga de logs temporários.' },
+        { scope: 'Redes, Switches Core & Wi-Fi', focus: 'Backup das configurações dos switches, teste de PoE dos access points e cabo de redundância.' },
+        { scope: 'Segurança & Patches de SO', focus: 'Aplicação controlada de atualizações de segurança críticas nos servidores de aplicação.' },
+        { scope: 'No-breaks & Sistema Elétrico do Datacenter', focus: 'Teste de descarga e autonomia das baterias dos no-breaks e gerador.' },
+        { scope: 'Disaster Recovery & Restauração de Backup', focus: 'Simulação real de restauração de snapshot de 1TB em ambiente isolado.' }
+      ];
+
+      let currentDate = new Date(CONTEXT_TODAY);
+      for (let i = 0; i < slotsCount; i++) {
+        // Advance 14 days (biweekly)
+        currentDate.setDate(currentDate.getDate() + 14);
+        // Adjust to Friday (day 5) or Saturday (day 6) for maintenance windows
+        while (currentDate.getDay() !== 5) {
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        const y = currentDate.getFullYear();
+        const m = currentDate.getMonth();
+        const d = currentDate.getDate();
+        const iso = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const q = m <= 2 ? 'Q1' : (m <= 5 ? 'Q2' : (m <= 8 ? 'Q3' : 'Q4'));
+        const itemScope = scopes[i % scopes.length];
+
+        generated.push({
+          id: 'ai-prev-' + Date.now() + Math.random().toString(36).substr(2, 5),
+          title: `Manutenção Preventiva Quinzenal: ${itemScope.scope}`,
+          cadence: 'monthly',
+          category: 'routines',
+          status: 'todo',
+          priority: 'high',
+          date: iso,
+          quarter: q,
+          squad: 'Infraestrutura & Redes',
+          tags: ['#Preventiva', '#SLA', '#Infra'],
+          impact: 'high',
+          urgency: 'high',
+          description: `Janela programada de manutenção preventiva de TI. Escopo: ${itemScope.focus}`,
+          subtasks: [
+            { id: 'st-pm1', text: 'Backup preventivo completo antes do início do procedimento', done: false },
+            { id: 'st-pm2', text: 'Execução do procedimento técnico de manutenção preventiva', done: false },
+            { id: 'st-pm3', text: 'Testes de homologação pós-manutenção e validação dos serviços', done: false },
+            { id: 'st-pm4', text: 'Registro da intervenção no diário de bordo e liberação da janela', done: false }
+          ]
+        });
+      }
+
+      displayAIPreview(generated, `Estipulada uma cadência equilibrada de ${slotsCount} janelas quinzenais de manutenção preventiva às sextas-feiras, cobrindo storages, bancos, redes e elétrica.`);
+    }
+
+    function generateGenericScheduledTask(promptText) {
+      const iso = `${STATE.currentYear}-${String(STATE.currentMonth + 1).padStart(2, '0')}-28`;
+      const generated = [{
+        id: 'ai-gen-' + Date.now(),
+        title: `Ação Planejada por IA: ${promptText.slice(0, 50)}...`,
+        cadence: 'monthly',
+        category: 'projects',
+        status: 'todo',
+        priority: 'medium',
+        date: iso,
+        quarter: 'Q3',
+        squad: 'TI Operações',
+        tags: ['#IA', '#Planejamento'],
+        impact: 'high',
+        urgency: 'high',
+        description: `Atividade estruturada pela inteligência artificial com base no comando: "${promptText}".`,
+        subtasks: [
+          { id: 'st-g1', text: 'Planejamento e alinhamento das etapas operacionais', done: false },
+          { id: 'st-g2', text: 'Execução e validação técnica da entrega', done: false }
+        ]
+      }];
+      displayAIPreview(generated, `A IA interpretou seu pedido e formatou a atividade com critérios de aceite.`);
+    }
+
+    function displayAIPreview(tasksList, description) {
+      STATE.aiGeneratedTasksBuffer = tasksList;
+      document.getElementById('aiPreviewCount').textContent = tasksList.length;
+      document.getElementById('aiPreviewDescription').textContent = description;
+
+      const listContainer = document.getElementById('aiGeneratedTasksList');
+      listContainer.innerHTML = tasksList.map(t => {
+        const cat = CATEGORIES[t.category] || CATEGORIES.projects;
+        const formattedDate = t.date.split('-').reverse().join('/');
+        return `
+          <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs hover:border-indigo-500/50 transition">
+            <div class="space-y-0.5 max-w-[70%] truncate">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${cat.badgeClass}">${cat.prefix} ${cat.name}</span>
+                <span class="text-[10px] font-mono text-slate-500">${formattedDate}</span>
+              </div>
+              <h4 class="font-bold text-slate-900 dark:text-white truncate">${t.title}</h4>
+            </div>
+            <span class="text-[10px] text-slate-400 font-mono">${(t.subtasks || []).length} DoD</span>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('aiPreviewSection').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function commitAIGeneratedTasks() {
+      if (!STATE.aiGeneratedTasksBuffer || STATE.aiGeneratedTasksBuffer.length === 0) return;
+
+      const count = STATE.aiGeneratedTasksBuffer.length;
+      STATE.tasks.push(...STATE.aiGeneratedTasksBuffer);
+      STATE.aiGeneratedTasksBuffer = [];
+
+      saveTasksToStorage();
+      closeAICopilotModal();
+      renderApp();
+
+      // Trigger Celebration Confetti
+      try {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } catch (e) {}
+
+      showToast(`🎉 ${count} atividades inseridas no calendário pela IA com sucesso!`, 'success');
+    }
+
+    function discardAIGenerated() {
+      STATE.aiGeneratedTasksBuffer = [];
+      document.getElementById('aiPreviewSection').classList.add('hidden');
+      showToast('Sugestões da IA descartadas.', 'info');
     }
 
     // =========================================================================
@@ -1478,9 +1933,6 @@
       updateFilterIndicators();
     }
 
-    // =========================================================================
-    // SUBTASKS (DoD) CALCULATION
-    // =========================================================================
     function getTaskProgress(task) {
       if (task.subtasks && task.subtasks.length > 0) {
         const doneCount = task.subtasks.filter(st => st.done).length;
@@ -1497,10 +1949,8 @@
     // =========================================================================
     function switchView(viewName) {
       STATE.currentView = viewName;
-
       const views = ['calendar', 'quarter', 'kanban', 'roadmap', 'eisenhower', 'analytics'];
       
-      // Desktop Nav Pills
       views.forEach(v => {
         const btn = document.getElementById('viewBtn' + capitalize(v));
         if (btn) {
@@ -1512,7 +1962,6 @@
         }
       });
 
-      // Mobile Nav Pills
       views.forEach(v => {
         const mBtn = document.getElementById('mViewBtn' + capitalize(v));
         if (mBtn) {
@@ -1524,7 +1973,6 @@
         }
       });
 
-      // Show/Hide Sections
       views.forEach(v => {
         const sec = document.getElementById('view' + capitalize(v));
         if (sec) sec.classList.toggle('hidden', v !== viewName);
@@ -1563,10 +2011,10 @@
               Hoje
             </button>
           </div>
-          <div class="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+          <div class="flex items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-500"></span> Visitas</span>
             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Projetos</span>
             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Rotinas</span>
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Capacitação</span>
             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Segurança</span>
           </div>
         `;
@@ -1591,7 +2039,7 @@
               <i data-lucide="kanban" class="w-4 h-4 text-indigo-500"></i>
               <span>Quadro Operacional de Status</span>
             </h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Arraste e solte os cards entre as colunas para atualizar o status instantaneamente.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Arraste e solte os cartões diretamente entre as colunas para atualizar o status instantaneamente.</p>
           </div>
           <div class="flex items-center gap-2 text-xs text-slate-500">
             <span class="flex items-center gap-1"><i data-lucide="move" class="w-3.5 h-3.5"></i> Suporta Drag & Drop</span>
@@ -1674,43 +2122,22 @@
     // =========================================================================
     function getFilteredTasks() {
       return STATE.tasks.filter(task => {
-        // Cadence Filter
-        if (STATE.activeCadence !== 'all' && task.cadence !== STATE.activeCadence) {
-          return false;
-        }
+        if (STATE.activeCadence !== 'all' && task.cadence !== STATE.activeCadence) return false;
+        if (STATE.activeCategory !== 'all' && task.category !== STATE.activeCategory) return false;
+        if (STATE.activeStatus !== 'all' && task.status !== STATE.activeStatus) return false;
+        if (STATE.activeTag !== 'all' && (!task.tags || !task.tags.includes(STATE.activeTag))) return false;
 
-        // Category Filter
-        if (STATE.activeCategory !== 'all' && task.category !== STATE.activeCategory) {
-          return false;
-        }
-
-        // Status Filter
-        if (STATE.activeStatus !== 'all' && task.status !== STATE.activeStatus) {
-          return false;
-        }
-
-        // Tag Filter
-        if (STATE.activeTag !== 'all' && (!task.tags || !task.tags.includes(STATE.activeTag))) {
-          return false;
-        }
-
-        // Risk / Attention Filter
         if (STATE.filterOnlyAttention) {
           const dead = getTaskDeadlineStatus(task);
-          if (dead.status !== 'overdue' && dead.status !== 'warning') {
-            return false;
-          }
+          if (dead.status !== 'overdue' && dead.status !== 'warning') return false;
         }
 
-        // Search Query
         if (STATE.searchQuery) {
           const matchTitle = (task.title || '').toLowerCase().includes(STATE.searchQuery);
           const matchDesc = (task.description || '').toLowerCase().includes(STATE.searchQuery);
           const matchSquad = (task.squad || '').toLowerCase().includes(STATE.searchQuery);
           const matchTags = (task.tags || []).some(t => t.toLowerCase().includes(STATE.searchQuery));
-          if (!matchTitle && !matchDesc && !matchSquad && !matchTags) {
-            return false;
-          }
+          if (!matchTitle && !matchDesc && !matchSquad && !matchTags) return false;
         }
 
         return true;
@@ -1777,14 +2204,12 @@
     // SIDEBAR FILTERS & KPI METRICS
     // =========================================================================
     function renderSidebarFilters() {
-      // Attention count
       const attentionCount = STATE.tasks.filter(t => {
         const s = getTaskDeadlineStatus(t).status;
         return s === 'overdue' || s === 'warning';
       }).length;
       document.getElementById('attentionCountBadge').textContent = attentionCount;
 
-      // Render Cadence options
       const cadenceList = document.getElementById('cadenceFilterList');
       const cadenceCounts = {
         all: STATE.tasks.length,
@@ -1816,7 +2241,6 @@
       }
       cadenceList.innerHTML = cadenceHtml;
 
-      // Render Categories
       const categoryList = document.getElementById('categoryFilterList');
       let catHtml = `
         <button onclick="setCategoryFilter('all')" class="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-medium transition ${STATE.activeCategory === 'all' ? 'bg-indigo-50 dark:bg-indigo-600/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'}">
@@ -1841,7 +2265,6 @@
       }
       categoryList.innerHTML = catHtml;
 
-      // Extract all unique tags
       const allTags = new Set();
       STATE.tasks.forEach(t => {
         if (t.tags && Array.isArray(t.tags)) {
@@ -1852,7 +2275,7 @@
       if (allTags.size === 0) {
         tagChipsContainer.innerHTML = '<span class="text-[10px] text-slate-400">Nenhuma tag cadastrada.</span>';
       } else {
-        tagChipsContainer.innerHTML = Array.from(allTags).map(tag => {
+        tagChipsContainer.innerHTML = Array.from(allTags).slice(0, 15).map(tag => {
           const isSelected = STATE.activeTag === tag;
           return `
             <button 
@@ -1865,7 +2288,6 @@
         }).join('');
       }
 
-      // Status pills
       const statusGrid = document.getElementById('statusFilterGrid');
       statusGrid.innerHTML = `
         <button onclick="setStatusFilter('all')" class="px-2 py-1.5 rounded-lg text-center text-xs font-semibold transition ${STATE.activeStatus === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800/70 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}">
@@ -1898,9 +2320,6 @@
       renderSidebarFilters();
     }
 
-    // =========================================================================
-    // VIEW RENDERERS
-    // =========================================================================
     function renderApp() {
       renderViewHeader();
       updateMetrics();
@@ -1976,7 +2395,7 @@
                 return `
                   <div 
                     onclick="event.stopPropagation(); viewTaskDetail('${t.id}')"
-                    class="text-[11px] font-medium p-1 rounded-lg border flex items-center justify-between gap-1 transition truncate shadow-xs hover:brightness-105 ${cat.badgeClass} ${isDone ? 'opacity-50 line-through' : ''}"
+                    class="text-[11px] font-medium p-1 rounded-lg border flex items-center justify-between gap-1 transition truncate shadow-xs hover:brightness-105 hover:-translate-y-0.5 ${cat.badgeClass} ${isDone ? 'opacity-50 line-through' : ''}"
                     title="${t.title} (${cat.name})"
                   >
                     <div class="flex items-center gap-1.5 truncate">
@@ -2106,7 +2525,6 @@
       `;
     }
 
-    // Drag and Drop Event Handlers
     function handleDragStart(event, taskId) {
       STATE.draggedTaskId = taskId;
       event.dataTransfer.setData('text/plain', taskId);
@@ -2160,8 +2578,7 @@
         return;
       }
 
-      // Group tasks by category
-      const categoriesOrder = ['projects', 'security', 'indicators', 'routines', 'training'];
+      const categoriesOrder = ['clients', 'projects', 'security', 'indicators', 'routines', 'training'];
       let html = '';
 
       categoriesOrder.forEach(catKey => {
@@ -2179,12 +2596,11 @@
         `;
 
         catTasks.forEach(task => {
-          // Calculate start and end month column (1 to 12)
           let startMonth = 1;
           let spanMonths = 2;
 
           if (task.date) {
-            const m = new Date(task.date + 'T00:00:00').getMonth() + 1; // 1-12
+            const m = new Date(task.date + 'T00:00:00').getMonth() + 1;
             startMonth = Math.max(1, m - 1);
             spanMonths = 2;
           } else if (task.quarter === 'Q1') { startMonth = 1; spanMonths = 3; }
@@ -2202,9 +2618,7 @@
                 style="grid-column-start: ${startMonth}; grid-column-end: span ${spanMonths};"
               >
                 <div class="h-8 rounded-xl border flex items-center px-2.5 justify-between shadow-xs overflow-hidden relative ${cat.badgeClass}">
-                  <!-- Fill bar -->
                   <div class="absolute left-0 top-0 bottom-0 bg-indigo-500/20 rounded-l-xl" style="width: ${progress.percent}%"></div>
-                  
                   <span class="text-[11px] font-bold truncate z-10 text-slate-900 dark:text-white">${task.title}</span>
                   <span class="text-[10px] font-mono font-bold z-10 ml-2 shrink-0 ${isDone ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}">
                     ${progress.percent}%
@@ -2230,13 +2644,9 @@
     function renderEisenhower() {
       const filteredTasks = getFilteredTasks();
 
-      // Q1: High Impact + High Urgency (Foco Imediato)
       const q1Tasks = filteredTasks.filter(t => (t.impact === 'high' || t.priority === 'critical') && (t.urgency === 'high' || t.priority === 'critical' || t.priority === 'high'));
-      // Q2: High Impact + Low Urgency (Estratégico)
       const q2Tasks = filteredTasks.filter(t => (t.impact === 'high' || t.priority === 'critical') && !(t.urgency === 'high' || t.priority === 'critical' || t.priority === 'high'));
-      // Q3: Low Impact + High Urgency (Sustentação)
       const q3Tasks = filteredTasks.filter(t => !(t.impact === 'high' || t.priority === 'critical') && (t.urgency === 'high' || t.priority === 'high'));
-      // Q4: Low Impact + Low Urgency (Backlog)
       const q4Tasks = filteredTasks.filter(t => !(t.impact === 'high' || t.priority === 'critical') && !(t.urgency === 'high' || t.priority === 'high'));
 
       document.getElementById('countEisenhowerQ1').textContent = q1Tasks.length;
@@ -2274,12 +2684,9 @@
         }
       });
 
-      // Health Score Calculation (0-100%)
-      // Penalized by overdue tasks, rewarded by done tasks and on-time SLA
       let score = 100;
       if (total > 0) {
         const overduePenalty = (overdueCount / total) * 60;
-        const inProgressWithoutSubtasksPenalty = (tasks.filter(t => t.status === 'in_progress').length / total) * 10;
         score = Math.max(20, Math.round(100 - overduePenalty));
       }
 
@@ -2302,7 +2709,6 @@
       const dodPct = totalDoD > 0 ? Math.round((doneDoD / totalDoD) * 100) : 0;
       document.getElementById('analyticsDodPercent').textContent = `${dodPct}% dos critérios atingidos`;
 
-      // Squad Chart
       const squadCounts = {};
       tasks.forEach(t => {
         const squad = t.squad || 'Geral';
@@ -2325,7 +2731,6 @@
         `;
       }).join('');
 
-      // Category Breakdown Chart
       const catChart = document.getElementById('analyticsCategoryChart');
       catChart.innerHTML = Object.entries(CATEGORIES).map(([catKey, cat]) => {
         const catTasks = tasks.filter(t => t.category === catKey);
@@ -2350,12 +2755,11 @@
     }
 
     // -------------------------------------------------------------------------
-    // REUSABLE TASK CARD RENDERER (With Drag & Drop, DoD & Risk Badge)
+    // REUSABLE TASK CARD RENDERER
     // -------------------------------------------------------------------------
     function renderTaskCard(t, draggable = true) {
       const cat = CATEGORIES[t.category] || CATEGORIES.projects;
       const cadence = CADENCES[t.cadence] || CADENCES.monthly;
-      const prio = PRIORITIES[t.priority] || PRIORITIES.medium;
       const dead = getTaskDeadlineStatus(t);
       const prog = getTaskProgress(t);
       const isDone = t.status === 'done';
@@ -2364,7 +2768,7 @@
         <div 
           ${draggable ? `draggable="true" ondragstart="handleDragStart(event, '${t.id}')" ondragend="handleDragEnd(event)"` : ''}
           onclick="viewTaskDetail('${t.id}')"
-          class="p-3 rounded-xl bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80 hover:border-indigo-500/50 hover:bg-slate-50 dark:hover:bg-slate-900 transition shadow-xs group cursor-pointer relative ${isDone ? 'opacity-65' : ''}"
+          class="p-3 rounded-xl bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80 hover:border-indigo-500/50 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all duration-200 hover:-translate-y-0.5 shadow-xs hover:shadow-md group cursor-pointer relative ${isDone ? 'opacity-65' : ''}"
         >
           <!-- Top Badges -->
           <div class="flex items-center justify-between gap-1.5 mb-2">
@@ -2597,7 +3001,7 @@
           ...taskData
         };
         STATE.tasks.push(newTask);
-        showToast('Nova atividade adicionada ao planejamento!', 'success');
+        showToast('Nova atividade cadastrada!', 'success');
       }
 
       saveTasksToStorage();
@@ -2636,7 +3040,7 @@
     }
 
     // =========================================================================
-    // TASK DETAIL VIEW MODAL (With Live Subtasks Toggle)
+    // TASK DETAIL VIEW MODAL
     // =========================================================================
     function viewTaskDetail(taskId) {
       const task = STATE.tasks.find(t => t.id === taskId);
@@ -2646,7 +3050,6 @@
       const cat = CATEGORIES[task.category] || CATEGORIES.projects;
       const cadence = CADENCES[task.cadence] || CADENCES.monthly;
       const status = STATUSES[task.status] || STATUSES.todo;
-      const prio = PRIORITIES[task.priority] || PRIORITIES.medium;
       const dead = getTaskDeadlineStatus(task);
       const prog = getTaskProgress(task);
 
@@ -2670,7 +3073,6 @@
       document.getElementById('detailSlaBadge').innerHTML = `<span class="px-2 py-0.5 rounded-full text-[10px] border ${dead.badgeClass}">${dead.label}</span>`;
       document.getElementById('detailSquad').textContent = task.squad || 'Geral';
 
-      // Render Interactive Subtasks in Detail Modal
       const subtasksContainer = document.getElementById('detailSubtasksList');
       const countSpan = document.getElementById('detailSubtasksCount');
       if (!task.subtasks || task.subtasks.length === 0) {
@@ -2726,13 +3128,13 @@
     // =========================================================================
     function loadCorporateSample() {
       openConfirmModal(
-        'Carregar Modelo Anual Corporativo',
-        'Deseja carregar o modelo completo com mais de 18 atividades realistas de TI (SOC2, Kubernetes, DRP, SAP, Pentest e rotinas com DoD)?',
+        'Restaurar Modelo Corporativo Completo',
+        'Deseja carregar o modelo de TI padrão com auditorias, migrações, visitas e rotinas com DoD?',
         () => {
           STATE.tasks = JSON.parse(JSON.stringify(CORPORATE_IT_PRESET));
           saveTasksToStorage();
           renderApp();
-          showToast('Modelo Corporativo carregado com sucesso!', 'success');
+          showToast('Modelo Corporativo restaurado!', 'success');
         }
       );
     }
